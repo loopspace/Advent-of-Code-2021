@@ -109,7 +109,7 @@ and the derived files            advent.ins,
 %</driver>
 % \fi
 %
-% \CheckSum{}
+% \CheckSum{0}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -152,28 +152,46 @@ and the derived files            advent.ins,
 % \section{Day 01}
 %
 % \begin{function}{\CountIncreases}
-% \begin{enumerate}
-% \item There are \CountIncreases{Day01.txt} increases in the depths.
-% \item There are \CountIncreases[3]{Day01.txt} increases in the \(3\)--item rolling averages of the depths.
 %
 % For this, we take advantage of a useful thing with the rolling averages.
 % If the first four terms are \(a\), \(b\), \(c\), and \(d\) then the first rolling average is \(a + b + c\) and the second is \(b + c + d\), so when comparing these averages it is enough to compare \(a\) with \(d\).
 % So we store \(k\) items in a sequence and then compare the next item with the first term of that sequence.
 % By then putting that next item on the end of the sequence and removing the first, so that it always stores the most recent \(k\) terms in the main list, we can iterate over the whole list quite efficiently.
+%
+% \begin{enumerate}
+% \item There are \CountIncreases{Day01} increases in the depths.
+% \item There are \CountIncreases[3]{Day01} increases in the \(3\)--item rolling averages of the depths.
 % \end{enumerate}
 % \end{function}
 %
 % \section{Day 02}
 %
-% \begin{function}{\NavigateSub}
-% \begin{enumerate}
-% \item \NavigateSub*{Day02.txt}
-% \item \NavigateSub{Day02.txt}
-%
 % For the second task, we can reuse the code since the \Verb!Depth! of the first part now becomes the \Verb!Aim! of the second.
 % So it is just a matter of adding the extra counter to the main code and then selecting the right outputs for the user level command.
+%
+% \begin{function}{\NavigateSub}
+% \begin{enumerate}
+% \item \NavigateSub*{Day02}
+% \item \NavigateSub{Day02}
 % \end{enumerate}
 % \end{function}
+%
+% \section{Day 03}
+%
+% I didn't originally see how to directly use my code from the first part in solving the second.
+% Eventually, I hit on the idea of iterating through the list of data with a filter and figuring out the frequency of each bit for those which match the filter.
+% For the first part, the filter is just ``allow everything'' but for the second then we gradually build up a prefix to match against.
+% The \(\mathrm{CO}_2\) count proved slightly tricky due to the condition that once we have only a single match then we return that.
+% With the \(\mathrm{O}_2\) count then we can continue looking for the most frequent bit value even when there's only one left.
+% But with the \(\mathrm{CO}_2\) count then we need to flip the behaviour when there's only one left.
+%
+% \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
+% \begin{enumerate}
+% \item \CalculateRatesGE{Day03}
+% \item \CalculateRatesOCO{Day03}
+% \end{enumerate}
+% \end{function}
+% 
 % 
 % \StopEventually{}
 %
@@ -295,7 +313,7 @@ solving the Advent of Code 2021}
 %    \end{macrocode}  
 % Try to open the data file
 %    \begin{macrocode}
-  \ior_open:NnTF \l_@@_tmpa_ior {#1}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
   {
 %    \end{macrocode}  
 % That was successful, so now initialise the count and a sequence which will hold the first \(k\) terms.
@@ -377,7 +395,7 @@ solving the Advent of Code 2021}
 %    \end{macrocode}  
 % Try to open the data file
 %    \begin{macrocode}
-  \ior_open:NnTF \l_@@_tmpa_ior {#1}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
   {
 %    \end{macrocode}  
 % That was successful, so initialise the counters and start slurping through the file.
@@ -456,6 +474,177 @@ solving the Advent of Code 2021}
 \item Product:~\int_eval:n { (\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl}) * (\tl_item:Nn \g_@@_output_tl {2})}
   \end{itemize}
   \tl_gclear:N \g_@@_output_tl
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{
+% \CalculateRatesGE,
+% \CalculateRatesOCO
+% }
+%
+%    \begin{macrocode}
+\int_const:Nn\c_@@_bitlength_int {12}
+\cs_new_protected_nopar:Npn \@@_calculate_rate:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}  
+% Try to open the data file
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% Initialise the sequence that will track the most common values in each bit location.
+%    \begin{macrocode}
+    \seq_clear:N \l_@@_tmpa_seq
+    \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+    {
+      \seq_put_right:Nn \l_@@_tmpa_seq {0}
+    }
+%    \end{macrocode}
+% We need to know if we have more than one match on the list
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+%    \end{macrocode}
+% Iterate through the file
+%    \begin{macrocode}
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+%    \end{macrocode}
+% We test if the line starts with the filter prefix.
+% To force a match only at the start of the token lists, we prepend them both with an \Verb!X!.
+%    \begin{macrocode}
+      \tl_if_in:nnT {X##1} {X#1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+%    \end{macrocode}
+% Iterate through binary number.
+% If we get a \(1\) then we increment the count for this digit, if we get a \(0\) then we decrement it.      
+% This way, if the final tally is positive then we want a \(1\) and if negative a \(0\).
+%    \begin{macrocode}
+        \seq_clear:N \l_@@_tmpb_seq
+        \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+        {
+          \seq_put_right:Nx \l_@@_tmpb_seq
+          {
+            \int_eval:n
+            {
+              \seq_item:Nn \l_@@_tmpa_seq {####1}
+              +
+              2*(\tl_item:nn {##1} {####1}) - 1
+            }
+          }
+        }
+        \seq_set_eq:NN \l_@@_tmpa_seq \l_@@_tmpb_seq
+      }
+    }
+    \ior_close:N \l_@@_tmpa_ior
+    \seq_gset_eq:NN \g_@@_output_seq \l_@@_tmpa_seq
+    \bool_gset:Nn \g_@@_output_bool
+    {
+      \int_compare_p:nNn {\l_@@_tmpa_int} > {1}
+    }
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+% Wrap the above in user commands.
+%
+% Calculating the Gamma and Epsilon rates is straight-forward.
+%    \begin{macrocode}
+\NewDocumentCommand \CalculateRatesGE {m}
+{
+  \@@_calculate_rate:nn {} {#1}
+  \int_zero:N \l_@@_tmpa_int
+  \seq_map_inline:Nn \g_@@_output_seq
+  {
+    \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
+    \int_compare:nNnT {##1} > {0}
+    {
+      \int_incr:N \l_@@_tmpa_int
+    }
+  }
+  \begin{itemize}
+  \item Gamma~rate:~\int_use:N \l_@@_tmpa_int
+\item Epsilon~rate:~\int_eval:n {4095 - \l_@@_tmpa_int}
+\item Power~consumption:~ \int_eval:n {\l_@@_tmpa_int * (4095 - \l_@@_tmpa_int)}
+  \end{itemize}
+  \int_zero:N \l_@@_tmpa_int
+  \seq_gclear:N \g_@@_output_seq
+}
+%    \end{macrocode}
+%
+% Calculating the Oxygen and Carbon-Dioxide is a little trickier.
+%    \begin{macrocode}
+\cs_generate_variant:Nn \@@_calculate_rate:nn {Vn}
+\NewDocumentCommand \CalculateRatesOCO {m}
+{
+  \tl_clear:N \l_@@_tmpa_tl
+  \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+  {
+    \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
+    \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
+    {
+      \tl_put_right:Nn \l_@@_tmpa_tl {0}
+    }
+    {
+      \tl_put_right:Nn \l_@@_tmpa_tl {1}
+    }
+  }
+  \int_zero:N \l_@@_tmpa_int
+  \tl_map_inline:Nn \l_@@_tmpa_tl
+  {
+    \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
+    \int_compare:nNnT {##1} > {0}
+    {
+      \int_incr:N \l_@@_tmpa_int
+    }
+  }
+  \tl_clear:N \l_@@_tmpa_tl
+  \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+  {
+    \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
+    \bool_if:NTF \g_@@_output_bool
+    {
+      \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
+      {
+        \tl_put_right:Nn \l_@@_tmpa_tl {1}
+      }
+      {
+        \tl_put_right:Nn \l_@@_tmpa_tl {0}
+      }
+    }
+    {
+      \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
+      {
+        \tl_put_right:Nn \l_@@_tmpa_tl {0}
+      }
+      {
+        \tl_put_right:Nn \l_@@_tmpa_tl {1}
+      }
+    }
+  }
+  \int_zero:N \l_@@_tmpb_int
+  \tl_map_inline:Nn \l_@@_tmpa_tl
+  {
+    \int_set:Nn \l_@@_tmpb_int {2 * \l_@@_tmpb_int}
+    \int_compare:nNnT {##1} > {0}
+    {
+      \int_incr:N \l_@@_tmpb_int
+    }
+  }
+  \begin{itemize}
+  \item Oxygen~Rate:~\int_use:N \l_@@_tmpa_int
+\item Carbon~Dioxide~Rate:~\int_use:N \l_@@_tmpb_int
+\item Life~Support~Rating:~\int_eval:n {\l_@@_tmpa_int * \l_@@_tmpb_int}
+  \end{itemize}
 }
 %    \end{macrocode}
 % \end{macro}
