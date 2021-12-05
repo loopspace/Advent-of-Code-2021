@@ -151,10 +151,30 @@ and the derived files            advent.ins,
 %
 % \section{Day 01}
 %
+% \begin{function}{\CountIncreases}
 % \begin{enumerate}
-% \item There are \CountIncreases{Day01.txt} increases in the depths
-% \end{enumerate}
+% \item There are \CountIncreases{Day01.txt} increases in the depths.
+% \item There are \CountIncreases[3]{Day01.txt} increases in the \(3\)--item rolling averages of the depths.
 %
+% For this, we take advantage of a useful thing with the rolling averages.
+% If the first four terms are \(a\), \(b\), \(c\), and \(d\) then the first rolling average is \(a + b + c\) and the second is \(b + c + d\), so when comparing these averages it is enough to compare \(a\) with \(d\).
+% So we store \(k\) items in a sequence and then compare the next item with the first term of that sequence.
+% By then putting that next item on the end of the sequence and removing the first, so that it always stores the most recent \(k\) terms in the main list, we can iterate over the whole list quite efficiently.
+% \end{enumerate}
+% \end{function}
+%
+% \section{Day 02}
+%
+% \begin{function}{\NavigateSub}
+% \begin{enumerate}
+% \item \NavigateSub*{Day02.txt}
+% \item \NavigateSub{Day02.txt}
+%
+% For the second task, we can reuse the code since the \Verb!Depth! of the first part now becomes the \Verb!Aim! of the second.
+% So it is just a matter of adding the extra counter to the main code and then selecting the right outputs for the user level command.
+% \end{enumerate}
+% \end{function}
+% 
 % \StopEventually{}
 %
 % \section{Implementation}
@@ -172,7 +192,7 @@ and the derived files            advent.ins,
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplPackage {advent.sty} {2021/12/05} {1.00} {Functions for
+\ProvidesExplPackage {advent} {2021/12/05} {1.00} {Functions for
 solving the Advent of Code 2021}
 \RequirePackage{xparse}
 %    \end{macrocode}
@@ -263,47 +283,182 @@ solving the Advent of Code 2021}
 
 %    \end{macrocode}
 %
-% \begin{macro}[internal]{
-% \count_changes:Nn
+% \begin{macro}{
+% \CountIncreases
 % }
 % Take in a file of integers and count the changes.
+% The second argument contains the step for the comparisons, so that the \(n\)th term is compared with the \(n+k\)th term.
 %    \begin{macrocode}
-\cs_new_protected_nopar:Npn \@@_count_increases:n #1
+\cs_new_protected_nopar:Npn \@@_count_increases:nn #1#2
 {
   \group_begin:
+%    \end{macrocode}  
+% Try to open the data file
+%    \begin{macrocode}
   \ior_open:NnTF \l_@@_tmpa_ior {#1}
   {
+%    \end{macrocode}  
+% That was successful, so now initialise the count and a sequence which will hold the first \(k\) terms.
+%    \begin{macrocode}
     \int_zero:N \l_@@_tmpa_int
-    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
-    \int_set:Nn \l_@@_tmpb_int {\l_@@_tmpa_tl}
-
+    \seq_clear:N \l_@@_tmpa_seq
+%    \end{macrocode}  
+% Load in the first \(k\) lines of the file into the sequence.
+%    \begin{macrocode}
+    \int_step_inline:nnn {1} {#2}
+    {
+      \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+      \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpa_tl
+    }
+%    \end{macrocode}  
+% Now step through the rest of the file, comparing each value with the first value in the sequence of saved items (which we pop off the sequence).
+%    \begin{macrocode}
     \ior_map_inline:Nn \l_@@_tmpa_ior
     {
-      \int_compare:nNnT {##1} > {\l_@@_tmpb_int}
+%    \end{macrocode}  
+% Start by removing the initial element in the sequence
+%    \begin{macrocode}
+      \seq_pop:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+%    \end{macrocode}
+% Compare that with the current item
+%    \begin{macrocode}
+      \int_compare:nNnT {##1} > {\l_@@_tmpb_tl}
       {
+%    \end{macrocode}
+% New term is bigger, so increment the counter
+%    \begin{macrocode}     
         \int_incr:N \l_@@_tmpa_int
       }
-      \int_set:Nn \l_@@_tmpb_int {##1}
+%    \end{macrocode}
+% Now store the new term on the end of the sequence.
+%    \begin{macrocode}
+      \seq_put_right:Nn \l_@@_tmpa_seq {##1}
     }
-
+%    \end{macrocode}
+% Save the count of increments in the output register and close the file.
+%    \begin{macrocode}
     \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
     \ior_close:N \l_@@_tmpa_ior
   }
   {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
     \msg_warning:nnn { advent } { missing file } {#1}
   }
   \group_end:
 }
-\NewDocumentCommand \CountIncreases {m}
+%    \end{macrocode}
+% Wrap the above in a user command.
+%    \begin{macrocode}
+\NewDocumentCommand \CountIncreases {O{1} m}
 {
-  \@@_count_increases:n {#1}
+  \@@_count_increases:nn {#2}{#1}
   \int_use:N \g_@@_output_int
   \int_gzero:N \g_@@_output_int
 }
-%
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{
+% \NavigateSub
+% }
+%
+%    \begin{macrocode}
+\tl_new:N \c_@@_forward_tl
+\tl_new:N \c_@@_up_tl
+\tl_new:N \c_@@_down_tl
+\tl_gset:Nn \c_@@_forward_tl {forward}
+\tl_gset:Nn \c_@@_up_tl {up}
+\tl_gset:Nn \c_@@_down_tl {down}
+\cs_new_protected_nopar:Npn \@@_navigate_sub:n #1
+{
+  \group_begin:
+%    \end{macrocode}  
+% Try to open the data file
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1}
+  {
+%    \end{macrocode}  
+% That was successful, so initialise the counters and start slurping through the file.
+% The counters track:
+% \begin{enumerate}
+% \item \Verb!\l_@@_tmpa_int! Aim
+% \item \Verb!\l_@@_tmpb_int! Horizontal distance
+% \item \Verb!\l_@@_tmpc_int! Depth
+% \end{enumerate}
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_zero:N \l_@@_tmpb_int
+    \int_zero:N \l_@@_tmpc_int
+
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+%    \end{macrocode}
+% Read in a line, and split it into the command and amount.
+%    \begin{macrocode}
+      \seq_set_split:Nnn \l_@@_tmpa_seq {~} {##1}
+      \seq_pop:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+      \seq_pop:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+%    \end{macrocode}
+% Check the command and modify the appropriate counter
+%    \begin{macrocode}
+      \tl_case:Nn \l_@@_tmpa_tl
+      {
+        \c_@@_up_tl
+        {
+          \int_sub:Nn \l_@@_tmpa_int {\l_@@_tmpb_tl}
+        }
+        \c_@@_down_tl
+        {
+          \int_add:Nn \l_@@_tmpa_int {\l_@@_tmpb_tl}
+        }
+        \c_@@_forward_tl
+        {
+          \int_add:Nn \l_@@_tmpb_int {\l_@@_tmpb_tl}
+          \int_add:Nn \l_@@_tmpc_int {(\l_@@_tmpb_tl) * (\l_@@_tmpa_int)}
+        }
+      }
+    }
+%    \end{macrocode}
+% Now save the two counters into the output register.
+%    \begin{macrocode}    
+    \tl_gset:Nx \g_@@_output_tl {
+      { \int_use:N \l_@@_tmpa_int }
+      { \int_use:N \l_@@_tmpb_int }
+      { \int_use:N \l_@@_tmpc_int }
+    }
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+% Wrap the above in a user command.
+%    \begin{macrocode}
+\NewDocumentCommand \NavigateSub {s m}
+{
+  \@@_navigate_sub:n {#2}
+  \IfBooleanTF {#1}
+  {
+    \tl_set:Nn \l_@@_tmpa_tl {1}
+  }
+  {
+    \tl_set:Nn \l_@@_tmpa_tl {3}
+  }
+  \begin{itemize}
+\item Depth:~\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl}
+\item Distance:~\tl_item:Nn \g_@@_output_tl {2}
+\item Product:~\int_eval:n { (\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl}) * (\tl_item:Nn \g_@@_output_tl {2})}
+  \end{itemize}
+  \tl_gclear:N \g_@@_output_tl
+}
+%    \end{macrocode}
+% \end{macro}
 %
 % \iffalse
 %</advent>
