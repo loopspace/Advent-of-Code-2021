@@ -7,15 +7,8 @@ practise a bit more by doing the AoC in LaTeX3.
 
 I've decided to work with a `dtx` file so that I can contain the
 documentation alongside the code.
-To compile it, therefore, takes two steps:
+To compile it, run:
 
 ~~~
-tex advent_code.dtx
 pdflatex advent_code.dtx
 ~~~
-
-The first creates the `advent.sty` file which is then included back in
-on the second run.
-(It is possible just to run `pdflatex` twice but the first run might
-produce complaints.)
-
