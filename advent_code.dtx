@@ -40,12 +40,12 @@ conditions of the MIT License
 This work consists of the files  advent_code.dtx
 and the derived files            advent.ins,
                                  advent_code.pdf,
-                                 advent.tex,
+                                 advent.sty,
 
 \endpostamble
 \usedir{tex/latex/advent}
 \generate{
-  \file{advent.tex}{\from{\jobname.dtx}{advent}}
+  \file{advent.sty}{\from{\jobname.dtx}{advent}}
 }
 %</install>
 %<install>\endbatchfile
@@ -67,6 +67,7 @@ and the derived files            advent.ins,
 \usepackage{lmodern}
 %\usepackage{morefloats}
 \usepackage{trace}
+\usepackage{advent}
 %\traceoff
 %\usepackage[numbered]{hypdoc}
 \definecolor{lstbgcolor}{rgb}{0.9,0.9,0.9} 
@@ -137,7 +138,7 @@ and the derived files            advent.ins,
 % }
 %
 % \providecommand*{\url}{\texttt}
-% \GetFileInfo{advent.tex}
+% \GetFileInfo{advent.sty}
 % \title{Advent of Code 2021: \LaTeX3 Solutions}
 % \author{Andrew Stacey \\ \url{loopspace@mathforge.org}}
 % \date{\fileversion~from \filedate}
@@ -148,7 +149,12 @@ and the derived files            advent.ins,
 % 
 % \section{Introduction}
 %
-
+% \section{Day 01}
+%
+% \begin{enumerate}
+% \item There are \CountIncreases{Day01.txt} increases in the depths
+% \end{enumerate}
+%
 % \StopEventually{}
 %
 % \section{Implementation}
@@ -166,7 +172,7 @@ and the derived files            advent.ins,
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{expl3}
-\ProvidesExplFile {advent.tex} {2021/12/05} {1.00} {Functions for
+\ProvidesExplPackage {advent.sty} {2021/12/05} {1.00} {Functions for
 solving the Advent of Code 2021}
 \RequirePackage{xparse}
 %    \end{macrocode}
@@ -247,9 +253,56 @@ solving the Advent of Code 2021}
 
 \int_new:N \l_@@_tmpa_int
 \int_new:N \l_@@_tmpb_int
+\int_new:N \l_@@_tmpc_int
 
 \bool_new:N \l_@@_tmpa_bool
+
+\ior_new:N \l_@@_tmpa_ior
+
+\msg_new:nnn { advent } { missing file } { File~ #1~ doesn't~ exist~ \msg_line_context:}
+
 %    \end{macrocode}
+%
+% \begin{macro}[internal]{
+% \count_changes:Nn
+% }
+% Take in a file of integers and count the changes.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_count_increases:n #1
+{
+  \group_begin:
+  \ior_open:NnTF \l_@@_tmpa_ior {#1}
+  {
+    \int_zero:N \l_@@_tmpa_int
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \int_set:Nn \l_@@_tmpb_int {\l_@@_tmpa_tl}
+
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \int_compare:nNnT {##1} > {\l_@@_tmpb_int}
+      {
+        \int_incr:N \l_@@_tmpa_int
+      }
+      \int_set:Nn \l_@@_tmpb_int {##1}
+    }
+
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+    \ior_close:N \l_@@_tmpa_ior
+  }
+  {
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+\NewDocumentCommand \CountIncreases {m}
+{
+  \@@_count_increases:n {#1}
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%
+%    \end{macrocode}
+% \end{macro}
 %
 %
 % \iffalse
