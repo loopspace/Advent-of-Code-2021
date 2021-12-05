@@ -191,7 +191,15 @@ and the derived files            advent.ins,
 % \item \CalculateRatesOCO{Day03}
 % \end{enumerate}
 % \end{function}
-% 
+%
+%
+% \section{Day 04}
+%
+% \begin{function}{\BingoCards}
+% \begin{enumerate}
+% \item \BingoCards{Day04}
+% \end{enumerate}
+% \end{function}
 % 
 % \StopEventually{}
 %
@@ -258,6 +266,7 @@ solving the Advent of Code 2021}
 \int_new:N \g_@@_output_int
 \seq_new:N \g_@@_output_seq
 \bool_new:N \g_@@_output_bool
+\prop_new:N \g_@@_output_prop
 %    \end{macrocode}
 %
 % To avoid creating vast numbers of variables, we provide ourselves with a few that we reuse frequently.
@@ -296,6 +305,8 @@ solving the Advent of Code 2021}
 \bool_new:N \l_@@_tmpa_bool
 
 \ior_new:N \l_@@_tmpa_ior
+
+\prop_new:N \l_@@_tmpa_prop
 
 \msg_new:nnn { advent } { missing file } { File~ #1~ doesn't~ exist~ \msg_line_context:}
 
@@ -649,6 +660,174 @@ solving the Advent of Code 2021}
 %    \end{macrocode}
 % \end{macro}
 %
+%
+% \begin{macro}{
+% \BingoCards
+% }
+%
+% Convert a card into a prop.
+% The keys are the numbers, the values are the coordinates of where that number is on the card. 
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_parse_card:N #1
+{
+  \group_begin:
+  \prop_clear:N \l_@@_tmpa_prop
+  \int_zero:N \l_@@_tmpa_int
+  \int_set:Nn \l_@@_tmpb_int {5}
+  \seq_map_inline:Nn #1
+  {
+    \prop_put:Nnx \l_@@_tmpa_prop {##1}
+    {
+      { \int_use:N \l_@@_tmpa_int }
+      { \int_use:N \l_@@_tmpb_int }
+    }
+    \int_incr:N \l_@@_tmpa_int
+    \int_compare:nNnT {\l_@@_tmpa_int} = {5}
+    {
+      \int_zero:N \l_@@_tmpa_int
+      \int_incr:N \l_@@_tmpb_int
+    }
+  }
+  \prop_gset_eq:NN \g_@@_output_prop \l_@@_tmpa_prop
+  \group_end:
+}
+%    \end{macrocode}
+%
+% This checks a card to see if is a winner, and computes the score (well, almost) if it does.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_check_card:NN #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% This prop contains the number of values found on each row and column.
+%    \begin{macrocode}
+  \prop_clear:N \l_@@_tmpb_prop
+  \int_step_inline:nnn {0} {9}
+  {
+    \prop_put:Nnn \l_@@_tmpb_prop {##1} {0}
+  }
+%    \end{macrocode}
+% Clear a boolean and integer register 
+%    \begin{macrocode}
+  \bool_set_false:N \l_@@_tmpa_bool
+  \int_zero:N \l_@@_tmpa_int
+%    \end{macrocode}
+% Iterate over the list of bingo numbers 
+%    \begin{macrocode}
+  \seq_map_inline:Nn #2
+  {
+%    \end{macrocode}
+% See if the number is on the card
+%    \begin{macrocode}
+    \prop_get:NnNT #1 {##1} \l_@@_tmpa_tl
+    {
+%    \end{macrocode}
+% If it is, keep track of the sum of the numbers we've seen (to use for calculating the score later).
+%    \begin{macrocode}
+      \int_add:Nn \l_@@_tmpa_int {##1}
+%    \end{macrocode}
+% If it's on the card, increment the count for the row and column that it lies on.
+%    \begin{macrocode}
+      \int_step_inline:nnn {1} {2}
+      {
+        \tl_set:Nx \l_@@_tmpb_tl {\tl_item:Nn \l_@@_tmpa_tl {####1}}
+        \prop_get:NVN \l_@@_tmpb_prop \l_@@_tmpb_tl \l_@@_tmpc_tl
+        \tl_set:Nx \l_@@_tmpc_tl {\int_eval:n {\l_@@_tmpc_tl + 1}}
+        \prop_put:NVV \l_@@_tmpb_prop \l_@@_tmpb_tl \l_@@_tmpc_tl
+%    \end{macrocode}
+% Compare the new count to see if that row or column has been filled
+%    \begin{macrocode}
+        \int_compare:nNnT {\l_@@_tmpc_tl } = {5}
+        {
+%    \end{macrocode}
+% If it has, set the flag and stop iterating over the token list
+%    \begin{macrocode}
+          \seq_map_break:n
+          {
+            \bool_set_true:N \l_@@_tmpa_bool
+          }
+        }
+      }
+    }
+  }
+  \bool_gset_eq:NN \g_@@_output_bool \l_@@_tmpa_bool
+  \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_read_card:N #1
+{
+  \group_begin:
+  \seq_clear:N \l_@@_tmpa_seq
+  
+  \int_step_inline:nnn {1} {5}
+  {
+    \ior_get:NN #1 \l_@@_tmpb_tl
+    \seq_set_split:NnV \l_@@_tmpb_seq {~} \l_@@_tmpb_tl
+    \seq_concat:NNN \l_@@_tmpa_seq \l_@@_tmpa_seq \l_@@_tmpb_seq
+  }
+  \seq_remove_all:Nn \l_@@_tmpa_seq {}
+  \seq_gset_eq:NN \g_@@_output_seq \l_@@_tmpa_seq
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_process_cards:n #1
+{
+  \group_begin:
+%    \end{macrocode}  
+% Try to open the data file
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
+  {
+%    \end{macrocode}
+% Read in the list of numbers
+%    \begin{macrocode}
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \seq_set_split:NnV \l_@@_tmpa_seq {,} \l_@@_tmpa_tl
+%    \end{macrocode}
+% Iterate over the rest of the file
+%    \begin{macrocode}
+    \bool_do_until:nn
+    {
+      \ior_if_eof_p:N \l_@@_tmpa_ior
+    }
+    {
+%    \end{macrocode}
+% Throw away the blank line
+%    \begin{macrocode}
+      \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpb_tl
+%    \end{macrocode}
+% Read in the next five
+%    \begin{macrocode}
+      \@@_read_card:N \l_@@_tmpa_ior
+      \seq_set_eq:NN \l_@@_tmpb_seq \g_@@_output_seq
+      \seq_gclear:N \g_@@_output_seq
+      \@@_parse_card:N \l_@@_tmpb_seq
+      \prop_set_eq:NN \l_@@_tmpa_prop \g_@@_output_prop
+      \@@_check_card:NN \l_@@_tmpa_prop \l_@@_tmpa_seq
+    }
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \BingoCards {m}
+{
+    \@@_process_cards:n {#1}
+}
+%    \end{macrocode}
+% \end{macro}
 % \iffalse
 %</advent>
 % \fi
