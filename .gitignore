@@ -1,0 +1,10 @@
+*.pdf
+*.idx
+*.ins
+*.log
+*.aux
+*.glo
+*.hd
+*.sty
+*~
+*.out
