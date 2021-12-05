@@ -1,0 +1,259 @@
+% \iffalse meta-comment
+%<*internal>
+\iffalse
+%</internal>
+%<*readme>
+----------------------------------------------------------------
+Advent of Code 2021 --- LaTeX3 code for solving the Advent of Code 2021
+E-mail: loopspace@mathforge.org
+Released under the MIT Licence
+----------------------------------------------------------------
+
+This is code I've written in LaTeX3 for solving the problems of the Advent of Code 2021
+%</readme>
+%<*internal>
+\fi
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+%</internal>
+%<*install>
+\input l3docstrip.tex
+\keepsilent
+\askforoverwritefalse
+\preamble
+----------------------------------------------------------------
+Advent of Code 2021 --- Functions for solving the problems
+E-mail: loopspace@mathforge.org
+Released under the MIT Licence
+----------------------------------------------------------------
+
+\endpreamble
+\postamble
+
+Copyright (C) 2021 by Andrew Stacey <loopspace@mathforge.org>
+
+This work may be distributed and/or modified under the
+conditions of the MIT License
+
+This work consists of the files  advent_code.dtx
+and the derived files            advent.ins,
+                                 advent_code.pdf,
+                                 advent.tex,
+
+\endpostamble
+\usedir{tex/latex/advent}
+\generate{
+  \file{advent.tex}{\from{\jobname.dtx}{advent}}
+}
+%</install>
+%<install>\endbatchfile
+%<*internal>
+\usedir{source/latex/advent}
+\generate{
+  \file{\jobname.ins}{\from{\jobname.dtx}{install}}
+}
+\nopreamble\nopostamble
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%</internal>
+%<*driver>
+\documentclass[full]{l3doc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+%\usepackage{morefloats}
+\usepackage{trace}
+%\traceoff
+%\usepackage[numbered]{hypdoc}
+\definecolor{lstbgcolor}{rgb}{0.9,0.9,0.9} 
+ 
+\usepackage{listings}
+\lstloadlanguages{[LaTeX]TeX}
+\lstset{
+  breakatwhitespace=true,
+  breaklines=true,
+  language=[LaTeX]TeX,
+  basicstyle=\small\ttfamily,
+  keepspaces=true,
+  columns=fullflexible
+}
+ 
+\usepackage{fancyvrb}
+
+\newenvironment{example}
+  {\VerbatimEnvironment
+   \begin{VerbatimOut}[gobble=2]{example.out}}
+  {\end{VerbatimOut}
+   \begin{center}
+%   \setlength{\parindent}{0pt}
+   \fbox{\begin{minipage}{.9\linewidth}
+     \lstinputlisting[]{example.out}
+   \end{minipage}}
+   \fbox{\begin{minipage}{.9\linewidth}
+     \centering
+     \input{example.out}
+   \end{minipage}}
+\end{center}
+}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{1.00}{2021/12/05}{Created DTX file}
+%
+% \DoNotIndex{\newcommand,\newenvironment}
+%
+% \pdfstringdefDisableCommands{%
+%  \def\\{}%
+%  \def\url#1{<#1>}%
+% }
+%
+% \providecommand*{\url}{\texttt}
+% \GetFileInfo{advent.tex}
+% \title{Advent of Code 2021: \LaTeX3 Solutions}
+% \author{Andrew Stacey \\ \url{loopspace@mathforge.org}}
+% \date{\fileversion~from \filedate}
+%
+%
+% \maketitle
+%
+% 
+% \section{Introduction}
+%
+
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+% \iffalse
+%<*advent>
+% \fi
+% \subsection{Initialisation}
+%
+%    \begin{macrocode}
+%<@@=advent>
+%    \end{macrocode}
+%
+% Load the \LaTeX3 foundation and register us as a \LaTeX3\ package.
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\RequirePackage{expl3}
+\ProvidesExplFile {advent.tex} {2021/12/05} {1.00} {Functions for
+solving the Advent of Code 2021}
+\RequirePackage{xparse}
+%    \end{macrocode}
+%
+% Utilities copied from \url{https://github.com/loopspace/LaTeX3-Utilities} for adding something in braces to a token list.
+% I find I use this quite a lot in my packages.
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_tl_put_right_braced:Nn
+{
+  \tl_put_right:Nn #1 { { #2 } }
+}
+\cs_generate_variant:Nn \@@_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
+
+\cs_new_protected:Nn \@@_tl_gput_right_braced:Nn
+{
+  \tl_gput_right:Nn #1 { { #2 } }
+}
+\cs_generate_variant:Nn \@@_tl_gput_right_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_new_protected:Nn \@@_tl_put_left_braced:Nn
+{
+  \tl_put_left:Nn #1 { { #2 } }
+}
+\cs_generate_variant:Nn \@@_tl_put_left_braced:Nn { NV, cV, cv, Nx, cx }
+
+\cs_new_protected:Nn \@@_tl_gput_left_braced:Nn
+{
+  \tl_gput_left:Nn #1 { { #2 } }
+}
+\cs_generate_variant:Nn \@@_tl_gput_left_braced:Nn { NV, cV, cv, Nx, cx }
+%    \end{macrocode}
+%
+%
+% I had to think a bit about how to get \TeX\ to work the way I wanted.
+% I'm really defining \emph{functions} but \TeX\ doesn't really have that concept, even with all the amazing \LaTeX3 stuff.
+% The main issue I had was with scoping and return values.
+% By default, \TeX\ functions aren't scoped -- they work on the same level as the calling functions.
+% To protect the internals from being overwritten, each core function works inside a group.
+% But then I have to work to get the answer out of it.
+% So each of my core functions finishes by storing its return value in an appropriate \Verb+output+ variable.
+% The core functions are then wrapped in a more user friendly interface that will take that output and assign it to a variable.
+% This also means that I can deal with local and global versions without duplicating code.
+%
+%    \begin{macrocode}
+\tl_new:N \g_@@_output_tl
+\int_new:N \g_@@_output_int
+\seq_new:N \g_@@_output_seq
+\bool_new:N \g_@@_output_bool
+%    \end{macrocode}
+%
+% To avoid creating vast numbers of variables, we provide ourselves with a few that we reuse frequently.
+% For that reason, most of them don't have very exciting names.
+%
+% These are general purpose variables.
+%    \begin{macrocode}
+\tl_new:N \l_@@_tmpa_tl
+\tl_new:N \l_@@_tmpb_tl
+\tl_new:N \l_@@_tmpc_tl
+\tl_new:N \l_@@_tmpd_tl
+\tl_new:N \l_@@_tmpe_tl
+\tl_new:N \l_@@_tmpf_tl
+\tl_new:N \l_@@_tmpg_tl
+\tl_new:N \l_@@_tmph_tl
+\tl_new:N \l_@@_tmpi_tl
+
+\seq_new:N \l_@@_tmpa_seq
+\seq_new:N \l_@@_tmpb_seq
+\seq_new:N \l_@@_tmpc_seq
+
+\dim_new:N \l_@@_tmpa_dim
+\dim_new:N \l_@@_tmpb_dim
+
+\fp_new:N \l_@@_tmpa_fp
+\fp_new:N \l_@@_tmpb_fp
+\fp_new:N \l_@@_tmpc_fp
+\fp_new:N \l_@@_tmpd_fp
+\fp_new:N \l_@@_tmpe_fp
+\fp_new:N \l_@@_tmpf_fp
+
+\int_new:N \l_@@_tmpa_int
+\int_new:N \l_@@_tmpb_int
+
+\bool_new:N \l_@@_tmpa_bool
+%    \end{macrocode}
+%
+%
+% \iffalse
+%</advent>
+% \fi
+%\Finale
+\endinput
