@@ -159,8 +159,12 @@ and the derived files            advent.ins,
 % By then putting that next item on the end of the sequence and removing the first, so that it always stores the most recent \(k\) terms in the main list, we can iterate over the whole list quite efficiently.
 %
 % \begin{enumerate}
-% \item There are \CountIncreases{Day01} increases in the depths.
-% \item There are \CountIncreases[3]{Day01} increases in the \(3\)--item rolling averages of the depths.
+% \item There are
+% ^^A \CountIncreases{Day01}
+% increases in the depths.
+% \item There are
+% ^^A \CountIncreases[3]{Day01}
+% increases in the \(3\)--item rolling averages of the depths.
 % \end{enumerate}
 % \end{function}
 %
@@ -171,8 +175,10 @@ and the derived files            advent.ins,
 %
 % \begin{function}{\NavigateSub}
 % \begin{enumerate}
-% \item \NavigateSub*{Day02}
-% \item \NavigateSub{Day02}
+% \item
+% ^^A \NavigateSub*{Day02}
+% \item
+% ^^A \NavigateSub{Day02}
 % \end{enumerate}
 % \end{function}
 %
@@ -187,8 +193,10 @@ and the derived files            advent.ins,
 %
 % \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
 % \begin{enumerate}
-% \item \CalculateRatesGE{Day03}
-% \item \CalculateRatesOCO{Day03}
+% \item
+% ^^A \CalculateRatesGE{Day03}
+% \item
+% ^^A \CalculateRatesOCO{Day03}
 % \end{enumerate}
 % \end{function}
 %
@@ -197,11 +205,41 @@ and the derived files            advent.ins,
 %
 % \begin{function}{\BingoCards}
 % \begin{enumerate}
-% \item First \BingoCards{Day04}
-% \item Last \BingoCards*{Day04}
+% \item First
+% ^^A \BingoCards{Day04}
+% \item Last
+% ^^A \BingoCards*{Day04}
 % \end{enumerate}
 % \end{function}
-% 
+%
+%
+% \section{Day 05}
+%
+% \begin{function}{\GridVents}
+% \begin{enumerate}
+% \item There are
+% ^^A \GridVents*{Day05} 
+% points where horizontal or vertical lines overlap.
+% \item There are
+% ^^A \GridVents{Day05}
+% points where horizontal, vertical, or diagonal lines overlap.
+% \end{enumerate}
+% \end{function}
+%
+%
+% \section{Day 06}
+%
+% \begin{function}{\LanternFish}
+% \begin{enumerate}
+% \item There are
+% \LanternFish{80}{Day06}
+% after \(80\) days.
+% \item There are
+% \LanternFish{256}{Day06}
+% after \(256\) days.
+% \end{enumerate}
+% \end{function}
+%
 % \StopEventually{}
 %
 % \section{Implementation}
@@ -224,7 +262,7 @@ solving the Advent of Code 2021}
 \RequirePackage{xparse}
 %    \end{macrocode}
 %
-% Utilities copied from \url{https://github.com/loopspace/LaTeX3-Utilities} for adding something in braces to a token list.
+% Utilities copied from \href{https://github.com/loopspace/LaTeX3-Utilities}{LaTeX3-Utilities} for adding something in braces to a token list.
 % I find I use this quite a lot in my packages.
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_tl_put_right_braced:Nn
@@ -302,6 +340,7 @@ solving the Advent of Code 2021}
 \int_new:N \l_@@_tmpa_int
 \int_new:N \l_@@_tmpb_int
 \int_new:N \l_@@_tmpc_int
+\int_new:N \l_@@_tmpd_int
 
 \bool_new:N \l_@@_tmpa_bool
 
@@ -653,7 +692,7 @@ solving the Advent of Code 2021}
     }
   }
   \begin{itemize}
-  \item Oxygen~Rate:~\int_use:N \l_@@_tmpa_int
+\item Oxygen~Rate:~\int_use:N \l_@@_tmpa_int
 \item Carbon~Dioxide~Rate:~\int_use:N \l_@@_tmpb_int
 \item Life~Support~Rating:~\int_eval:n {\l_@@_tmpa_int * \l_@@_tmpb_int}
   \end{itemize}
@@ -764,6 +803,7 @@ solving the Advent of Code 2021}
 }
 %    \end{macrocode}
 %
+% Reads a card into a sequence, collapsing five lines of input into a single sequence.
 %    \begin{macrocode}
 \cs_new_protected_nopar:Npn \@@_read_card:N #1
 {
@@ -782,6 +822,7 @@ solving the Advent of Code 2021}
 }
 %    \end{macrocode}
 %
+% Processes the cards
 %    \begin{macrocode}
 \cs_new_protected_nopar:Npn \@@_process_cards:Nn #1#2
 {
@@ -794,10 +835,14 @@ solving the Advent of Code 2021}
   \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
   {
 %    \end{macrocode}
-% Read in the list of numbers
+% Read in the list of numbers and split into a sequence
 %    \begin{macrocode}
     \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
     \seq_set_split:NnV \l_@@_tmpa_seq {,} \l_@@_tmpa_tl
+%    \end{macrocode}
+% Initialise the count that will keep track of how long our current ``best'' bingo card took to win.
+% If we're looking for the actual best then we initialise the count with the length of the sequence of numbers, if the worst then with \(0\).
+%    \begin{macrocode}    
     \token_if_eq_charcode:NNTF #1 <
     {
       \tl_set:Nx \l_@@_tmpc_tl {{\seq_count:N \l_@@_tmpa_seq}}
@@ -818,14 +863,30 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
       \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpb_tl
 %    \end{macrocode}
-% Read in the next five
+% Read in the next five to a sequence
 %    \begin{macrocode}
       \@@_read_card:N \l_@@_tmpa_ior
+%    \end{macrocode}
+% Save that sequence
+%    \begin{macrocode}
       \seq_set_eq:NN \l_@@_tmpb_seq \g_@@_output_seq
       \seq_gclear:N \g_@@_output_seq
+%    \end{macrocode}
+% Convert the card to a prop
+%    \begin{macrocode}
       \@@_parse_card:N \l_@@_tmpb_seq
+%    \end{macrocode}
+% Save that prop
+%    \begin{macrocode}
       \prop_set_eq:NN \l_@@_tmpa_prop \g_@@_output_prop
+%    \end{macrocode}
+% Check the card, stored as a prop, against the bingo numbers
+%    \begin{macrocode}
       \@@_check_card:NN \l_@@_tmpa_prop \l_@@_tmpa_seq
+%    \end{macrocode}
+% If the card ``wins'', see when it won and if it is the current ``best'' then save it.
+% We were passed in the comparison operator so that we can decide at call time whether ``best'' is soonest or latest to win.
+%    \begin{macrocode}
       \bool_if:NT \g_@@_output_bool
       {
         \int_compare:nNnT {\tl_item:Nn \g_@@_output_tl {1}} #1 {\tl_item:Nn \l_@@_tmpc_tl {1}}
@@ -835,13 +896,17 @@ solving the Advent of Code 2021}
         }
       }
     }
+%    \end{macrocode}
+% Having gone through them all, we take the winning card and work out its score.
+% We know the sum of the numbers that were crossed off, so we negate that and then add the sum of all the numbers on the card.
+%    \begin{macrocode}
     \int_set:Nn \l_@@_tmpa_int {0-(\tl_item:Nn \l_@@_tmpc_tl {2})}
     \seq_map_inline:Nn \l_@@_tmpc_seq
     {
       \int_add:Nn \l_@@_tmpa_int {##1}
     }
     \int_set:Nn \l_@@_tmpa_int {\l_@@_tmpa_int * \seq_item:Nn \l_@@_tmpa_seq {\tl_item:Nn \l_@@_tmpc_tl {1}}}
-    bingo~card~score:~\int_use:N \l_@@_tmpa_int
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
   }
   {
 %    \end{macrocode}
@@ -863,9 +928,346 @@ solving the Advent of Code 2021}
   {
     \@@_process_cards:Nn < {#2}
   }
+  bingo~card~score:~\int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
 }
 %    \end{macrocode}
 % \end{macro}
+%
+%
+% \begin{macro}{
+% \GridVents
+% }
+% The grid of vent coordinates will be flattened into a one dimensional integer array.
+% For this, I'm using the \Verb!intarray! data type.
+%
+% We know its size.
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_grid_intarray {1000*1000}
+%    \end{macrocode}
+% The second argument is the file name, the first effectively decides whether to count diagonal lines.
+% Pass in \(0\) to ignore diagonals, \(1\) to include them.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_grid_lines:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Initialise the array
+%    \begin{macrocode}
+  \intarray_gzero:N \g_@@_grid_intarray
+%    \end{macrocode}
+% Open the file.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% Iterate over the list of coordinates
+%    \begin{macrocode}
+    \bool_do_until:nn
+    {
+      \ior_if_eof_p:N \l_@@_tmpa_ior
+    }
+    {
+      \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+%    \end{macrocode}
+% Check it is a valid line (last line might be blank).
+%    \begin{macrocode}
+      \tl_if_in:NnT \l_@@_tmpa_tl {->}
+      {
+%    \end{macrocode}
+% Parse the input line into coordinates (stored in \Verb!b!, \Verb!c!, \Verb!d!, and \Verb!e! token lists).
+%    \begin{macrocode}
+        \exp_last_unbraced:NV \@@_grid_parse:w \l_@@_tmpa_tl \q_stop
+%    \end{macrocode}
+% This checks to see if the line is horizontal, vertical, or diagonal -- just in case there's a dodgy set of coordinates in there.
+%    \begin{macrocode}
+        \bool_if:nT
+        {
+          \int_compare_p:nNn {\l_@@_tmpb_tl} = {\l_@@_tmpd_tl}
+          ||
+          \int_compare_p:nNn {\l_@@_tmpc_tl} = {\l_@@_tmpe_tl}
+          ||
+          \int_compare_p:nNn {\int_abs:n {\l_@@_tmpb_tl - \l_@@_tmpd_tl}} = {\int_abs:n {\l_@@_tmpc_tl - \l_@@_tmpe_tl}}
+        }
+        {
+%    \end{macrocode}
+% Set two integer registers to the linearised position of the start and end coordinates of the line.
+% Note that integer arrays are \(1\)--based.
+%    \begin{macrocode}
+          \int_set:Nn \l_@@_tmpa_int { \l_@@_tmpb_tl + 1000 * (\l_@@_tmpc_tl - 1) }
+          \int_set:Nn \l_@@_tmpb_int { \l_@@_tmpd_tl + 1000 * (\l_@@_tmpe_tl - 1) }
+%    \end{macrocode}
+% The amount to add as we step through the line will be \(1\) if the line is horizontal or vertical, and equal to the first parameter passed to the function if the line is vertical, so we set it to \(1\) initially.
+%    \begin{macrocode}
+          \int_set:Nn \l_@@_tmpd_int {1}
+%    \end{macrocode}
+% The step value is a little more complicated.
+%    \begin{macrocode}
+          \int_zero:N \l_@@_tmpc_int
+%    \end{macrocode}
+% Check the \(x\)--coordinates.
+% If \(x\)--coordinates differ then we need to include a step by \(1\) or \(-1\), depending on which is bigger.
+%    \begin{macrocode}
+          \int_compare:nNnT {\l_@@_tmpb_tl } < {\l_@@_tmpd_tl}
+          {
+            \int_add:Nn \l_@@_tmpc_int {1}
+          }
+          \int_compare:nNnT {\l_@@_tmpb_tl } > {\l_@@_tmpd_tl}
+          {
+            \int_add:Nn \l_@@_tmpc_int {-1}
+          }
+%    \end{macrocode}
+% Check the \(y\)--coordinates.
+% If \(y\)--coordinates differ then we need to include a step by \(1000\) or \(-1000\), depending on which is bigger.
+%    \begin{macrocode}
+          \int_compare:nNnT {\l_@@_tmpc_tl } < {\l_@@_tmpe_tl}
+          {
+            \int_add:Nn \l_@@_tmpc_int {1000}
+          }
+          \int_compare:nNnT {\l_@@_tmpc_tl } > {\l_@@_tmpe_tl}
+          {
+            \int_add:Nn \l_@@_tmpc_int {-1000}
+          }
+%    \end{macrocode}
+% If both coordinates differ then we're on a diagonal and so we need to set the amount to record for this line to the first parameter.
+%    \begin{macrocode}
+          \bool_if:nF
+          {
+            \int_compare_p:nNn {\l_@@_tmpb_tl } = {\l_@@_tmpd_tl}
+            ||
+            \int_compare_p:nNn {\l_@@_tmpc_tl } = {\l_@@_tmpe_tl}
+          }
+          {
+            \int_set:Nn \l_@@_tmpd_int {#1}
+          }
+%    \end{macrocode}
+% Now we step along the line, incrementing the count at each position as we do.
+%    \begin{macrocode}
+          \int_step_inline:nnnn {\l_@@_tmpa_int} {\l_@@_tmpc_int} {\l_@@_tmpb_int}
+          {
+            \intarray_gset:Nnn \g_@@_grid_intarray {##1}
+            {
+              \intarray_item:Nn \g_@@_grid_intarray {##1} + \l_@@_tmpd_int
+            }
+          }
+        }
+      }
+    }
+%    \end{macrocode}
+% Having gone through all the lines, now we count how many positions are unsafe.
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_step_inline:nn {1000*1000}
+    {
+      \int_compare:nNnT {\intarray_item:Nn \g_@@_grid_intarray {##1} } > {1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+      }
+    }
+%    \end{macrocode}
+% Close the file and save the output.
+%    \begin{macrocode}
+    \ior_close:N \l_@@_tmpa_ior
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+% This function parses an input line and saves the coordinates.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_grid_parse:w #1,#2->#3,#4\q_stop
+{
+  \tl_set:Nn \l_@@_tmpb_tl {#1}
+  \tl_set:Nn \l_@@_tmpc_tl {#2}
+  \tl_set:Nn \l_@@_tmpd_tl {#3}
+  \tl_set:Nn \l_@@_tmpe_tl {#4}
+}
+%    \end{macrocode}
+% This is our user-defined function.
+%    \begin{macrocode}
+\NewDocumentCommand \GridVents { s m }
+{
+  \IfBooleanTF {#1}
+  {
+    \@@_grid_lines:nn {0} {#2}
+  }
+  {
+    \@@_grid_lines:nn {1} {#2}
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{
+% \LanternFish
+% }
+%
+% We save the state as a sequence of integers (no need for an \Verb!intarray! here as the sequence is short).
+% The sequence consists of the number of lantern fish in a particular state, except that we're off-by-one since the states start at \(0\) and sequences start at \(1\).
+%    \begin{macrocode}
+\int_const:Nn \c_@@_overflow_int {100000000}
+\cs_new_protected_nopar:Npn \@@_lantern_fish:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Clear the sequence that will hold the states.
+% There are no fish initially in state \(0\) (actually, there's a tacit assumption in this code that there's no gaps in the states in the observed fish).
+%    \begin{macrocode}
+  \seq_clear:N \l_@@_tmpa_seq
+  \seq_put_right:Nn \l_@@_tmpa_seq {0}
+  \seq_clear:N \l_@@_tmpb_seq
+  \seq_put_right:Nn \l_@@_tmpb_seq {0}
+%    \end{macrocode}
+% Open the file.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% Read in the initial list of states of fish and split into a sequence.
+% To count how many there are of each state we start by sorting the sequence and then we can count how many there are of each type.
+%    \begin{macrocode}
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \ior_close:N \l_@@_tmpa_ior
+    \tl_trim_spaces:N \l_@@_tmpa_tl
+    \seq_set_from_clist:NN \l_@@_tmpc_seq  \l_@@_tmpa_tl
+    \seq_sort:Nn \l_@@_tmpc_seq
+    {
+      \int_compare:nNnTF { ##1 } > { ##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+%    \end{macrocode}
+% We count each state by stepping through the sequence looking for when it changes.
+% When it does, we record the current count and restart a new count.
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpa_int {1}
+    \seq_pop_left:NN \l_@@_tmpc_seq \l_@@_tmpa_tl
+    \seq_map_inline:Nn \l_@@_tmpc_seq
+    {
+      \tl_if_eq:NnTF \l_@@_tmpa_tl {##1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+      }
+      {
+        \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpa_int
+        \int_set:Nn \l_@@_tmpa_int {1}
+        \tl_set:Nn \l_@@_tmpa_tl {##1}
+      }
+    }
+    \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpa_int
+%    \end{macrocode}
+% Make sure we have a sequence of the right length by padding with \(0\)s. 
+%    \begin{macrocode}
+    \int_compare:nNnT {\seq_count:N \l_@@_tmpa_seq} < {9}
+    {
+      \prg_replicate:nn {9 - \seq_count:N \l_@@_tmpa_seq}
+      {
+        \seq_put_right:Nn \l_@@_tmpa_seq {0}
+      }
+    }
+    \int_compare:nNnT {\seq_count:N \l_@@_tmpb_seq} < {9}
+    {
+      \prg_replicate:nn {9 - \seq_count:N \l_@@_tmpb_seq}
+      {
+        \seq_put_right:Nn \l_@@_tmpb_seq {0}
+      }
+    }
+%    \end{macrocode}
+% Now we iterate the days.
+% Each day, we remove the first term in the sequence (which is the number of fish currently in state \(0\)) which has the effect of decreasing the state of each fish.
+% Then the number of fish in state \(0\) is added to the set in state \(6\) and in state \(8\).
+% While doing so, we need to save the number of fish in state \(7\) temporarily.
+%
+% The \(256\) version of this runs into arithmetic overflow, so we have a second sequence for overflow.
+% We don't need to be too efficient, so to make life easier at the end we overflow at a power of \(10\).
+% \LaTeX3 integers are capped at \(2^{31} - 1\), so we overflow at \(10^9\).
+%    \begin{macrocode}
+    \prg_replicate:nn {#1}
+    {
+      \tl_set:Nn \l_@@_tmpd_tl {0}
+
+      \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+      \seq_pop_right:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+      \seq_pop_right:NN \l_@@_tmpa_seq \l_@@_tmpc_tl
+%    \end{macrocode}
+% Test for overflow, if the sum is bigger than the overflow then we subtract our overflow boundary before storing it and set the overflow counter to increment the second sequence.
+%    \begin{macrocode}
+      \int_compare:nNnTF {\l_@@_tmpa_tl + \l_@@_tmpc_tl} > {\c_@@_overflow_int - 1}
+      {
+        \seq_put_right:Nx \l_@@_tmpa_seq {\int_eval:n {\l_@@_tmpa_tl + \l_@@_tmpc_tl - \c_@@_overflow_int }}
+        \tl_set:Nn \l_@@_tmpd_tl {1}
+      }
+      {
+        \seq_put_right:Nx \l_@@_tmpa_seq {\int_eval:n {\l_@@_tmpa_tl + \l_@@_tmpc_tl }}
+      }
+      
+      \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
+      \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpa_tl
+      
+%    \end{macrocode}
+% Second sequence for the overflow
+%    \begin{macrocode} 
+      \seq_pop_left:NN \l_@@_tmpb_seq \l_@@_tmpa_tl
+      \seq_pop_right:NN \l_@@_tmpb_seq \l_@@_tmpb_tl
+      \seq_pop_right:NN \l_@@_tmpb_seq \l_@@_tmpc_tl
+      \seq_put_right:Nx \l_@@_tmpb_seq {\int_eval:n {\l_@@_tmpa_tl + \l_@@_tmpc_tl + \l_@@_tmpd_tl }}
+      \seq_put_right:NV \l_@@_tmpb_seq \l_@@_tmpb_tl
+      \seq_put_right:NV \l_@@_tmpb_seq \l_@@_tmpa_tl
+    }
+%    \end{macrocode}
+% Count up the number of fish.
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_zero:N \l_@@_tmpb_int
+    \seq_map_inline:Nn \l_@@_tmpb_seq
+    {
+      \int_add:Nn \l_@@_tmpb_int {##1}
+    }
+    \seq_map_inline:Nn \l_@@_tmpa_seq
+    {
+      \int_add:Nn \l_@@_tmpa_int {##1}
+      \int_compare:nNnT {\l_@@_tmpa_int} > {\c_@@_overflow_int - 1}
+      {
+        \int_sub:Nn \l_@@_tmpa_int {\c_@@_overflow_int}
+        \int_incr:N \l_@@_tmpb_int
+      }
+    }
+    \tl_gclear:N \g_@@_output_tl
+    \int_compare:nNnT {\l_@@_tmpb_int} > {0}
+    {
+      \tl_gset:Nx \g_@@_output_tl {\int_use:N \l_@@_tmpb_int}
+    }
+    \tl_gput_right:Nx \g_@@_output_tl {\int_use:N \l_@@_tmpa_int}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \LanternFish {m m}
+{
+  \@@_lantern_fish:nn {#1} {#2}
+  \tl_use:N \g_@@_output_tl
+  \tl_gclear:N \g_@@_output_tl
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \iffalse
 %</advent>
 % \fi
