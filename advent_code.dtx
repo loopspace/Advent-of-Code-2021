@@ -160,29 +160,32 @@ and the derived files            advent.ins,
 %
 % \begin{enumerate}
 % \item There are
-% ^^A \CountIncreases{Day01}
+% \CountIncreases{Day01}
 % increases in the depths.
 % \item There are
-% ^^A \CountIncreases[3]{Day01}
+% \CountIncreases[3]{Day01}
 % increases in the \(3\)--item rolling averages of the depths.
 % \end{enumerate}
 % \end{function}
 %
 % \section{Day 02}
 %
+% \begin{function}{\NavigateSub}
+%
 % For the second task, we can reuse the code since the \Verb!Depth! of the first part now becomes the \Verb!Aim! of the second.
 % So it is just a matter of adding the extra counter to the main code and then selecting the right outputs for the user level command.
 %
-% \begin{function}{\NavigateSub}
 % \begin{enumerate}
 % \item
-% ^^A \NavigateSub*{Day02}
+% \NavigateSub*{Day02}
 % \item
-% ^^A \NavigateSub{Day02}
+% \NavigateSub{Day02}
 % \end{enumerate}
 % \end{function}
 %
 % \section{Day 03}
+%
+% \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
 %
 % I didn't originally see how to directly use my code from the first part in solving the second.
 % Eventually, I hit on the idea of iterating through the list of data with a filter and figuring out the frequency of each bit for those which match the filter.
@@ -191,12 +194,11 @@ and the derived files            advent.ins,
 % With the \(\mathrm{O}_2\) count then we can continue looking for the most frequent bit value even when there's only one left.
 % But with the \(\mathrm{CO}_2\) count then we need to flip the behaviour when there's only one left.
 %
-% \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
 % \begin{enumerate}
 % \item
-% ^^A \CalculateRatesGE{Day03}
+% \CalculateRatesGE{Day03}
 % \item
-% ^^A \CalculateRatesOCO{Day03}
+% \CalculateRatesOCO{Day03}
 % \end{enumerate}
 % \end{function}
 %
@@ -204,11 +206,16 @@ and the derived files            advent.ins,
 % \section{Day 04}
 %
 % \begin{function}{\BingoCards}
+%
+% The idea of the code here is to convert a bingo card into a \texttt{prop} with keys the numbers on the card and values their positions.
+% When running through the called numbers, we can use this prop to figure which row and column each number belongs to.
+% Then keeping a count of how many in each row and column have been seen means that we can tell when a card is ``won''.
+%
 % \begin{enumerate}
-% \item First
-% ^^A \BingoCards{Day04}
-% \item Last
-% ^^A \BingoCards*{Day04}
+% \item First bingo card score:
+% \BingoCards{Day04}
+% \item Last bingo card score:
+% \BingoCards*{Day04}
 % \end{enumerate}
 % \end{function}
 %
@@ -216,12 +223,16 @@ and the derived files            advent.ins,
 % \section{Day 05}
 %
 % \begin{function}{\GridVents}
+%
+% With the grid vents, we just iterate over the lines and keep count.
+% As the grid is \(1000 \times 1000\), we use an \texttt{intarray} to keep track of it (technically, a linearised version of it).
+%
 % \begin{enumerate}
 % \item There are
-% ^^A \GridVents*{Day05} 
+% \GridVents*{Day05} 
 % points where horizontal or vertical lines overlap.
 % \item There are
-% ^^A \GridVents{Day05}
+% \GridVents{Day05}
 % points where horizontal, vertical, or diagonal lines overlap.
 % \end{enumerate}
 % \end{function}
@@ -230,6 +241,12 @@ and the derived files            advent.ins,
 % \section{Day 06}
 %
 % \begin{function}{\LanternFish}
+%
+% The main issue with the lantern fish is that when calculating for \(256\) days then we overflow the \LaTeX3 integer arithmetic.
+% To cope with it, we need to effectively use double integer arithmetic.
+% However, we don't get anywhere near the maximum double limit so we implement the overflow at \(100000000\).
+% This means that we can do the overflow \emph{after} the arithmetic since it won't actually overflow, and reconstructing the number for display purposes is simple.
+%
 % \begin{enumerate}
 % \item There are
 % \LanternFish{80}{Day06}
@@ -237,6 +254,60 @@ and the derived files            advent.ins,
 % \item There are
 % \LanternFish{256}{Day06}
 % after \(256\) days.
+% \end{enumerate}
+% \end{function}
+%
+% \section{Day 07}
+%
+% I cheated slightly here.
+% The position that minimises the cost in the first version is the median, so we just calculate that and use it to calculate the fuel cost.
+% In the second, the fuel cost is calculated using triangular numbers which are almost squares.
+% The position that minimises the cost if it were using squared distances would be the mean.
+% So I started by calculating the mean and the fuel cost from that.
+% Or rather, from the rounded mean.
+% That didn't give the right answer so I then tried rounding the mean the other way and that did work.
+% So I didn't technically work out which one minimised it in the code.
+%
+% \begin{function}{\CrabLine}
+% \begin{enumerate}
+% \item The cheapest fuel cost is
+% \CrabLine*{Day07}
+% \item The cheapest fuel cost is
+% \CrabLine{Day07}
+% \end{enumerate}
+% \end{function}
+%
+% \section{Day 08}
+%
+% \begin{function}{\DigitScramble,\DigitUnScramble}
+%
+% For the first digit scramble, as the numbers are uniquely identified by the lengths of the segments used then it is simply a matter of counting terms of those lengths.
+%
+% For the second part, each segment is used a set number of times in the ten digits and that can be used to figure out which number is which.
+% In the unscrambled digits, for example, segment \(e\) is used \(4\) times.
+% These numbers aren't unique -- segments \(a\) and \(c\) are both used \(8\) times -- but adding the scores for the segments used in a particular digit produces a number that is unique.
+% So taking the ten scrambled segment lists we can figure out the number of times each segment appears to get that list of numbers, then add up the scores of each of the digits that we want to determine so that we can identify them.
+%
+% \begin{enumerate}
+% \item There are
+% \DigitScramble{Day08}
+% \(1\)s, \(4\)s, \(7\)s, and \(8\)s.
+% \item The sum of all the unknown numbers is
+% \DigitUnScramble{Day08}.
+% \end{enumerate}
+% \end{function}
+%
+%
+%
+% \section{Day 09}
+%
+% \begin{function}{\SmokeBasin}
+%
+% To make the code a bit simpler, I effectively put a border of \(10\)s around the edge of the grid of numbers.
+% This meant that I didn't have to check for edges and corners differently to the rest.
+%
+% \begin{enumerate}
+% \item The sum of the risk levels is \SmokeBasin{Day09}
 % \end{enumerate}
 % \end{function}
 %
@@ -345,10 +416,42 @@ solving the Advent of Code 2021}
 \bool_new:N \l_@@_tmpa_bool
 
 \ior_new:N \l_@@_tmpa_ior
+\iow_new:N \l_@@_tmpa_iow
 
 \prop_new:N \l_@@_tmpa_prop
 
 \msg_new:nnn { advent } { missing file } { File~ #1~ doesn't~ exist~ \msg_line_context:}
+
+%    \end{macrocode}
+%
+%
+% We save our answers in a prop that is written to an output file at the end of the document.
+%    \begin{macrocode}
+\prop_new:N \g_@@_answers_prop
+
+\file_get:nnNT {advent_answers.txt} {} \l_@@_tmpa_tl
+{
+  \tl_use:N \l_@@_tmpa_tl
+}
+
+\prop_gremove:Nn \g_@@_answers_prop {Template}
+\prop_gremove:Nn \g_@@_answers_prop {DigitScramble}
+
+
+\AddToHook {enddocument} 
+{
+  \iow_open:Nn \l_@@_tmpa_iow {advent_answers.txt}
+  \prop_map_inline:Nn \g_@@_answers_prop
+  {
+    \iow_now:Nn \l_@@_tmpa_iow
+    {
+      \prop_gput:Nnn \g_@@_answers_prop {#1} {#2}
+    }
+  }
+  \iow_close:N \l_@@_tmpa_iow
+}
+
+
 
 %    \end{macrocode}
 %
@@ -422,7 +525,15 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
 \NewDocumentCommand \CountIncreases {O{1} m}
 {
-  \@@_count_increases:nn {#2}{#1}
+  \prop_get:NnNTF \g_@@_answers_prop {Increases#1} \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+  }
+  {
+    \@@_count_increases:nn {#2}{#1}
+    \prop_gput:NnV \g_@@_answers_prop {Increases#1} \g_@@_output_int
+  }
+
   \int_use:N \g_@@_output_int
   \int_gzero:N \g_@@_output_int
 }
@@ -511,7 +622,15 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
 \NewDocumentCommand \NavigateSub {s m}
 {
-  \@@_navigate_sub:n {#2}
+  \prop_get:NnNTF \g_@@_answers_prop {NavigateSub} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  {
+    \@@_navigate_sub:n {#2}
+    \prop_gput:NnV \g_@@_answers_prop {NavigateSub} \g_@@_output_tl
+  }
+
   \IfBooleanTF {#1}
   {
     \tl_set:Nn \l_@@_tmpa_tl {1}
@@ -612,18 +731,25 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
 \NewDocumentCommand \CalculateRatesGE {m}
 {
-  \@@_calculate_rate:nn {} {#1}
-  \int_zero:N \l_@@_tmpa_int
-  \seq_map_inline:Nn \g_@@_output_seq
+  \prop_get:NnNTF \g_@@_answers_prop {RatesGE} \l_@@_tmpa_tl
   {
-    \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
-    \int_compare:nNnT {##1} > {0}
+    \int_set:Nn \l_@@_tmpa_int {\l_@@_tmpa_tl}
+  }
+  {
+    \@@_calculate_rate:nn {} {#1}
+    \int_zero:N \l_@@_tmpa_int
+    \seq_map_inline:Nn \g_@@_output_seq
     {
-      \int_incr:N \l_@@_tmpa_int
+      \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
+      \int_compare:nNnT {##1} > {0}
+      {
+        \int_incr:N \l_@@_tmpa_int
+      }
     }
+    \prop_gput:NnV \g_@@_answers_prop {RatesGE} \l_@@_tmpa_int
   }
   \begin{itemize}
-  \item Gamma~rate:~\int_use:N \l_@@_tmpa_int
+\item Gamma~rate:~\int_use:N \l_@@_tmpa_int
 \item Epsilon~rate:~\int_eval:n {4095 - \l_@@_tmpa_int}
 \item Power~consumption:~ \int_eval:n {\l_@@_tmpa_int * (4095 - \l_@@_tmpa_int)}
   \end{itemize}
@@ -637,42 +763,15 @@ solving the Advent of Code 2021}
 \cs_generate_variant:Nn \@@_calculate_rate:nn {Vn}
 \NewDocumentCommand \CalculateRatesOCO {m}
 {
-  \tl_clear:N \l_@@_tmpa_tl
-  \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+  \prop_get:NnNTF \g_@@_answers_prop {RatesO} \l_@@_tmpa_tl
   {
-    \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
-    \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
-    {
-      \tl_put_right:Nn \l_@@_tmpa_tl {0}
-    }
-    {
-      \tl_put_right:Nn \l_@@_tmpa_tl {1}
-    }
+    \int_set:Nn \l_@@_tmpa_int {\l_@@_tmpa_tl}
   }
-  \int_zero:N \l_@@_tmpa_int
-  \tl_map_inline:Nn \l_@@_tmpa_tl
   {
-    \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
-    \int_compare:nNnT {##1} > {0}
+    \tl_clear:N \l_@@_tmpa_tl
+    \int_step_inline:nnn {1} {\c_@@_bitlength_int}
     {
-      \int_incr:N \l_@@_tmpa_int
-    }
-  }
-  \tl_clear:N \l_@@_tmpa_tl
-  \int_step_inline:nnn {1} {\c_@@_bitlength_int}
-  {
-    \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
-    \bool_if:NTF \g_@@_output_bool
-    {
-      \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
-      {
-        \tl_put_right:Nn \l_@@_tmpa_tl {1}
-      }
-      {
-        \tl_put_right:Nn \l_@@_tmpa_tl {0}
-      }
-    }
-    {
+      \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
       \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
       {
         \tl_put_right:Nn \l_@@_tmpa_tl {0}
@@ -681,15 +780,56 @@ solving the Advent of Code 2021}
         \tl_put_right:Nn \l_@@_tmpa_tl {1}
       }
     }
-  }
-  \int_zero:N \l_@@_tmpb_int
-  \tl_map_inline:Nn \l_@@_tmpa_tl
-  {
-    \int_set:Nn \l_@@_tmpb_int {2 * \l_@@_tmpb_int}
-    \int_compare:nNnT {##1} > {0}
+    \int_zero:N \l_@@_tmpa_int
+    \tl_map_inline:Nn \l_@@_tmpa_tl
     {
-      \int_incr:N \l_@@_tmpb_int
+      \int_set:Nn \l_@@_tmpa_int {2 * \l_@@_tmpa_int}
+      \int_compare:nNnT {##1} > {0}
+      {
+        \int_incr:N \l_@@_tmpa_int
+      }
     }
+    \prop_gput:NnV \g_@@_answers_prop {RatesO} \l_@@_tmpa_int
+  }
+  \prop_get:NnNTF \g_@@_answers_prop {RatesCO} \l_@@_tmpa_tl
+  {
+    \int_set:Nn \l_@@_tmpb_int {\l_@@_tmpa_tl}
+  }
+  {
+    \tl_clear:N \l_@@_tmpa_tl
+    \int_step_inline:nnn {1} {\c_@@_bitlength_int}
+    {
+      \@@_calculate_rate:Vn \l_@@_tmpa_tl {#1}
+      \bool_if:NTF \g_@@_output_bool
+      {
+        \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
+        {
+          \tl_put_right:Nn \l_@@_tmpa_tl {1}
+        }
+        {
+          \tl_put_right:Nn \l_@@_tmpa_tl {0}
+        }
+      }
+      {
+        \int_compare:nNnTF {\seq_item:Nn \g_@@_output_seq {##1}} < {0}
+        {
+          \tl_put_right:Nn \l_@@_tmpa_tl {0}
+        }
+        {
+          \tl_put_right:Nn \l_@@_tmpa_tl {1}
+        }
+      }
+    }
+    \int_zero:N \l_@@_tmpb_int
+    \tl_map_inline:Nn \l_@@_tmpa_tl
+    {
+      \int_set:Nn \l_@@_tmpb_int {2 * \l_@@_tmpb_int}
+      \int_compare:nNnT {##1} > {0}
+      {
+        \int_incr:N \l_@@_tmpb_int
+      }
+    }
+    \prop_gput:NnV \g_@@_answers_prop {RatesCO} \l_@@_tmpb_int
   }
   \begin{itemize}
 \item Oxygen~Rate:~\int_use:N \l_@@_tmpa_int
@@ -923,12 +1063,27 @@ solving the Advent of Code 2021}
 {
   \IfBooleanTF {#1}
   {
-    \@@_process_cards:Nn > {#2}
+    \prop_get:NnNTF \g_@@_answers_prop {BingoCardsA} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_process_cards:Nn > {#2}
+      \prop_gput:NnV \g_@@_answers_prop {BingoCardsA} \g_@@_output_int
+    }
   }
   {
+    \prop_get:NnNTF \g_@@_answers_prop {BingoCardsB} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_process_cards:Nn < {#2}
+      \prop_gput:NnV \g_@@_answers_prop {BingoCardsB} \g_@@_output_int
+    }
     \@@_process_cards:Nn < {#2}
   }
-  bingo~card~score:~\int_use:N \g_@@_output_int
+  \int_use:N \g_@@_output_int
   \int_gzero:N \g_@@_output_int
 }
 %    \end{macrocode}
@@ -1095,10 +1250,24 @@ solving the Advent of Code 2021}
 {
   \IfBooleanTF {#1}
   {
-    \@@_grid_lines:nn {0} {#2}
+    \prop_get:NnNTF \g_@@_answers_prop {GridVentsA} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_grid_lines:nn {0} {#2}
+      \prop_gput:NnV \g_@@_answers_prop {GridVentsA} \g_@@_output_int
+    }
   }
   {
-    \@@_grid_lines:nn {1} {#2}
+    \prop_get:NnNTF \g_@@_answers_prop {GridVentsB} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_grid_lines:nn {1} {#2}
+      \prop_gput:NnV \g_@@_answers_prop {GridVentsB} \g_@@_output_int
+    }
   }
   \int_use:N \g_@@_output_int
   \int_gzero:N \g_@@_output_int
@@ -1261,13 +1430,539 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
 \NewDocumentCommand \LanternFish {m m}
 {
-  \@@_lantern_fish:nn {#1} {#2}
+  \prop_get:NnNTF \g_@@_answers_prop {LanternFish#1} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  {
+    \@@_lantern_fish:nn {#1} {#2}
+    \prop_gput:NnV \g_@@_answers_prop {LanternFish#1} \g_@@_output_tl
+  }
   \tl_use:N \g_@@_output_tl
   \tl_gclear:N \g_@@_output_tl
 }
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{
+% \CrabLine
+% }
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_crab_line:nn #1#2
+{
+  \group_begin:
+  \seq_clear:N \l_@@_tmpa_seq
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+% Sort the sequence for simplicity.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \ior_close:N \l_@@_tmpa_ior
+    \tl_trim_spaces:N \l_@@_tmpa_tl
+    \seq_set_from_clist:NN \l_@@_tmpa_seq  \l_@@_tmpa_tl
+    \seq_sort:Nn \l_@@_tmpa_seq
+    {
+      \int_compare:nNnTF { ##1 } > { ##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+%    \end{macrocode}
+% The line that minimises the amount of fuel in the first version is the median.
+%    \begin{macrocode}
+    \tl_if_empty:nTF {#1}
+    {
+      \int_set:Nn \l_@@_tmpa_int { (\seq_count:N \l_@@_tmpa_seq) / 2 + 1}
+      \int_set:Nn \l_@@_tmpb_int {\seq_item:Nn \l_@@_tmpa_seq { \l_@@_tmpa_int }}
+
+      \int_zero:N \l_@@_tmpa_int
+      \seq_map_inline:Nn \l_@@_tmpa_seq
+      {
+        \int_compare:nNnTF {##1} < {\l_@@_tmpb_int}
+        {
+          \int_add:Nn \l_@@_tmpa_int {\l_@@_tmpb_int - ##1}
+        }
+        {
+          \int_add:Nn \l_@@_tmpa_int {##1 - \l_@@_tmpb_int}
+        }
+        
+      }
+
+    }
+%    \end{macrocode}
+% In the second, it is the mean
+%    \begin{macrocode}
+    {
+      \int_zero:N \l_@@_tmpa_int
+      \int_zero:N \l_@@_tmpb_int
+      \seq_map_inline:Nn \l_@@_tmpa_seq
+      {
+        \int_add:Nn \l_@@_tmpa_int {##1}
+      }
+      \fp_set:Nn \l_@@_tmpa_fp {\l_@@_tmpa_int / \seq_count:N \l_@@_tmpa_seq}
+      \int_set:Nn \l_@@_tmpb_int {\fp_eval:n {round(\l_@@_tmpa_fp)}}
+
+      \int_zero:N \l_@@_tmpa_int
+      \seq_map_inline:Nn \l_@@_tmpa_seq
+      {
+        \int_compare:nNnTF {##1} < {\l_@@_tmpb_int}
+        {
+          \int_add:Nn \l_@@_tmpa_int {((\l_@@_tmpb_int - ##1) * (\l_@@_tmpb_int - ##1 + 1))/2 }
+        }
+        {
+          \int_add:Nn \l_@@_tmpa_int {((##1 - \l_@@_tmpb_int) * (##1 - \l_@@_tmpb_int + 1))/2 }
+        }
+      }
+
+    }
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+    
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+
+\NewDocumentCommand \CrabLine {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {CrabLineA} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_crab_line:nn {} {#2}
+      \prop_gput:NnV \g_@@_answers_prop {CrabLineA} \g_@@_output_int
+    }
+  }
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {CrabLineB} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\l_@@_tmpa_tl}
+    }
+    {
+      \@@_crab_line:nn {t} {#2}
+      \prop_gput:NnV \g_@@_answers_prop {CrabLineB} \g_@@_output_int
+    }
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+% \begin{macro}{
+% \DigitScramble
+% }
+%
+% Digits to segments:
+% \begin{itemize}
+% \item 0 abcefg
+% \item 1 cf
+% \item 2 acdeg
+% \item 3 acdfg
+% \item 4 bcdf
+% \item 5 abdfg
+% \item 6 abdefg
+% \item 7 acf
+% \item 8 abcdefg
+% \item 9 abcdfg
+% \end{itemize}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_count_digits:n #1
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
+  {
+%    \end{macrocode}
+% Iterate through the file
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_set:Nn \l_@@_tmpa_tl {##1}
+      \tl_trim_spaces:N \l_@@_tmpa_tl
+      \seq_set_split:NnV \l_@@_tmpa_seq {~} \l_@@_tmpa_tl
+      \prg_replicate:nn {11}
+      {
+        \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+      }
+      \seq_map_inline:Nn \l_@@_tmpa_seq
+      {
+        \bool_if:nT
+        {
+          \int_compare_p:nNn {\tl_count:n {####1}} < {5}
+          ||
+          \int_compare_p:nNn {\tl_count:n {####1}} = {7}
+        }
+        {
+          \int_incr:N \l_@@_tmpa_int
+        }
+      }
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \DigitScramble {m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {DigitScramble} \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
+  }
+  {
+    \@@_count_digits:n {#1}
+    \prop_gput:NnV \g_@@_answers_prop {DigitScramble} \g_@@_output_int
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+% \DigitUnScramble
+% }
+%
+% Digits to segments:
+% \begin{itemize}
+% \item 0 abcefg
+% \item 1 cf
+% \item 2 acdeg
+% \item 3 acdfg
+% \item 4 bcdf
+% \item 5 abdfg
+% \item 6 abdefg
+% \item 7 acf
+% \item 8 abcdefg
+% \item 9 abcdfg
+% \end{itemize}
+%
+% Number of times each segment is used
+% \begin{itemize}
+% \item a 8
+% \item b 6
+% \item c 8
+% \item d 7
+% \item e 4
+% \item f 9
+% \item g 7
+% \end{itemize}
+% The grand total of these is \(8 + 6 + 8 + 7 + 4 + 9 + 7 = 49\).
+%
+% So the ``Digit Sum'' of each is:
+% \begin{itemize}
+% \item 0 abcefg \(8 + 6 + 8 + 4 + 9 + 7 = 42\)
+% \item 1 cf \(8 + 9 = 17\)
+% \item 2 acdeg \(8 + 8 + 7 + 4 + 7 = 34\)
+% \item 3 acdfg \(8 + 8 + 7 + 9 + 7 = 39\)
+% \item 4 bcdf \(6 + 8 + 7 + 9 = 30\)
+% \item 5 abdfg \(8 + 6 + 7 + 9 + 7 = 37\)
+% \item 6 abdefg \(8 + 6 + 7 + 4 + 9 + 7 = 41\)
+% \item 7 acf \(8 + 8 + 9 = 25\)
+% \item 8 abcdefg \(8 + 6 + 8 + 7 + 4 + 9 + 7 = 49\)
+% \item 9 abcdfg \(8 + 6 + 8 + 7 + 9 + 7 = 45\)
+% \end{itemize}
+% These are unique, so can be used to determine the code.
+%
+%    \begin{macrocode}
+\prop_new:N \l_@@_digits_prop
+\prop_put:Nnn \l_@@_digits_prop {42} {0}
+\prop_put:Nnn \l_@@_digits_prop {17} {1}
+\prop_put:Nnn \l_@@_digits_prop {34} {2}
+\prop_put:Nnn \l_@@_digits_prop {39} {3}
+\prop_put:Nnn \l_@@_digits_prop {30} {4}
+\prop_put:Nnn \l_@@_digits_prop {37} {5}
+\prop_put:Nnn \l_@@_digits_prop {41} {6}
+\prop_put:Nnn \l_@@_digits_prop {25} {7}
+\prop_put:Nnn \l_@@_digits_prop {49} {8}
+\prop_put:Nnn \l_@@_digits_prop {45} {9}
+\cs_new_protected_nopar:Npn \@@_unscramble_digits:n #1
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
+  {
+%    \end{macrocode}
+% Iterate through the file
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpb_int
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_set:Nn \l_@@_tmpa_tl {##1}
+      \tl_trim_spaces:N \l_@@_tmpa_tl
+      \seq_set_split:NnV \l_@@_tmpa_seq {~} \l_@@_tmpa_tl
+      \tl_clear:N \l_@@_tmpa_tl
+      \prg_replicate:nn {10}
+      {
+        \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+        \tl_put_right:NV \l_@@_tmpa_tl \l_@@_tmpb_tl
+      }
+      \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+      \tl_sort:Nn \l_@@_tmpa_tl
+      {
+        \int_compare:nNnTF { `####1 } > { `####2 }
+        { \sort_return_swapped: }
+        { \sort_return_same: }
+      }
+
+      \prop_clear:N \l_@@_tmpa_prop
+      \int_zero:N \l_@@_tmpa_int
+      \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpa_tl}
+      \tl_map_inline:Nn \l_@@_tmpa_tl
+      {
+        \exp_args:NV \tl_if_eq:nnTF \l_@@_tmpb_tl {####1}
+        {
+          \int_incr:N \l_@@_tmpa_int
+        }
+        {
+          \prop_put:NVV \l_@@_tmpa_prop \l_@@_tmpb_tl \l_@@_tmpa_int
+          \tl_set:Nn \l_@@_tmpb_tl {####1}
+          \int_set:Nn \l_@@_tmpa_int {1}
+        }
+      }
+      \prop_put:NVV \l_@@_tmpa_prop \l_@@_tmpb_tl \l_@@_tmpa_int
+
+      \tl_clear:N \l_@@_tmpa_tl
+      \seq_map_inline:Nn \l_@@_tmpa_seq
+      {
+        \int_zero:N \l_@@_tmpa_int
+        \tl_map_inline:nn {####1}
+        {
+          \int_add:Nn \l_@@_tmpa_int {\prop_item:Nn \l_@@_tmpa_prop {########1}}
+        }
+        \tl_put_right:Nx \l_@@_tmpa_tl {\exp_args:NNV \prop_item:Nn \l_@@_digits_prop \l_@@_tmpa_int}
+      }
+      \int_add:Nn \l_@@_tmpb_int {\tl_use:N \l_@@_tmpa_tl}
+
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpb_int
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \DigitUnScramble {m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {DigitUnScramble} \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
+  }
+  {
+    \@@_unscramble_digits:n {#1}
+    \prop_gput:NnV \g_@@_answers_prop {DigitUnScramble} \g_@@_output_int
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{
+% \SmokeBasin
+% }
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_check_line:Nnnn #1#2#3#4
+{
+  \int_step_inline:nnn {2} {\tl_count:n {#3} - 1}
+  {
+    \bool_if:nT
+    {
+      \int_compare_p:nNn
+      {\tl_item:nn {#3} {##1}} < {\tl_item:nn {#3} {##1-1}}
+      &&
+      \int_compare_p:nNn
+      {\tl_item:nn {#3} {##1}} < {\tl_item:nn {#3} {##1+1}}
+      &&
+      \int_compare_p:nNn
+      {\tl_item:nn {#3} {##1}} < {\tl_item:nn {#2} {##1}}
+      &&
+      \int_compare_p:nNn
+      {\tl_item:nn {#3} {##1}} < {\tl_item:nn {#4} {##1}}
+    }
+    {
+      \int_add:Nn #1 {\tl_item:nn {#3} {##1} + 1}
+    }
+  }
+}
+\cs_generate_variant:Nn \@@_check_line:Nnnn {NVVV}
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_smoke_basin:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \int_zero:N \l_@@_tmpa_int
+%    \end{macrocode}
+% Get the first line
+%    \begin{macrocode}
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpc_tl
+%    \end{macrocode}
+% Pad it with a \(10\) left and right
+%    \begin{macrocode}
+    \tl_put_right:Nn \l_@@_tmpc_tl {{10}}
+    \tl_put_left:Nn \l_@@_tmpc_tl {{10}}
+%    \end{macrocode}
+% Create a ``border`` line of \(10\)s
+%    \begin{macrocode}
+    \tl_clear:N \l_@@_tmpb_tl
+    \prg_replicate:nn {\tl_count:N \l_@@_tmpc_tl}
+    {
+      \tl_put_right:Nn \l_@@_tmpb_tl {{10}}
+    }
+%    \end{macrocode}
+% Step through the file, each time shifting the lines down one
+%    \begin{macrocode}
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_set_eq:NN \l_@@_tmpa_tl \l_@@_tmpb_tl
+      \tl_set_eq:NN \l_@@_tmpb_tl \l_@@_tmpc_tl
+      \tl_set:Nn \l_@@_tmpc_tl {{10}##1{10}}
+
+      \@@_check_line:NVVV
+      \l_@@_tmpa_int \l_@@_tmpa_tl \l_@@_tmpb_tl \l_@@_tmpc_tl
+    }
+%    \end{macrocode}
+% One line left to do
+%    \begin{macrocode}
+    \tl_set_eq:NN \l_@@_tmpa_tl \l_@@_tmpb_tl
+    \tl_set_eq:NN \l_@@_tmpb_tl \l_@@_tmpc_tl
+    \tl_clear:N \l_@@_tmpc_tl
+    \prg_replicate:nn {\tl_count:N \l_@@_tmpb_tl}
+    {
+      \tl_put_right:Nn \l_@@_tmpc_tl {{10}}
+    }
+    \@@_check_line:NVVV
+    \l_@@_tmpa_int \l_@@_tmpa_tl \l_@@_tmpb_tl \l_@@_tmpc_tl
+    
+    
+    \ior_close:N \l_@@_tmpa_ior
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \SmokeBasin {m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {SmokeBasin} \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
+  }
+  {
+    \@@_smoke_basin:nn {} {#1}
+    \prop_gput:NnV \g_@@_answers_prop {SmokeBasin} \g_@@_output_int
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+%
+%
+% \begin{macro}{
+% \advent_template
+% }
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_template:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \Template {m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {Template} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  {
+
+    \prop_gput:NnV \g_@@_answers_prop {Template} \g_@@_output_tl
+  }
+  \tl_use:N \g_@@_output_tl
+  \tl_gclear:N \g_@@_output_tl
+}
+%    \end{macrocode}
+% \end{macro}
 % \iffalse
 %</advent>
 % \fi
