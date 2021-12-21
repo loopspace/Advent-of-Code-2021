@@ -283,7 +283,8 @@ and the derived files            advent.ins,
 %
 % For the first digit scramble, as the numbers are uniquely identified by the lengths of the segments used then it is simply a matter of counting terms of those lengths.
 %
-% For the second part, each segment is used a set number of times in the ten digits and that can be used to figure out which number is which.
+% I'm quite pleased with my solution to the second part.
+% Each segment is used a set number of times in the ten digits and that can be used to figure out which number is which.
 % In the unscrambled digits, for example, segment \(e\) is used \(4\) times.
 % These numbers aren't unique -- segments \(a\) and \(c\) are both used \(8\) times -- but adding the scores for the segments used in a particular digit produces a number that is unique.
 % So taking the ten scrambled segment lists we can figure out the number of times each segment appears to get that list of numbers, then add up the scores of each of the digits that we want to determine so that we can identify them.
@@ -301,15 +302,64 @@ and the derived files            advent.ins,
 %
 % \section{Day 09}
 %
-% \begin{function}{\SmokeBasin}
+% \begin{function}{\SmokeBasin,\BasinSize}
 %
 % To make the code a bit simpler, I effectively put a border of \(10\)s around the edge of the grid of numbers.
 % This meant that I didn't have to check for edges and corners differently to the rest.
 %
+% I could think of a few algorithms for the second part.
+% One of the paradigms I'm finding when programming in \LaTeX3 is that the time cost has to get quite high before I will switch out a simple inefficient algorithm for a more complicated but efficient one.
+% So I could solve this in a single pass by keeping track of each partial basin, and as each line is read in then its non-\(9\) cells get added to the partial basins that it overlaps with, possibly leading to some partial basins getting combined.
+% But the data structure required to keep track of everything here is slightly complicated.
+% In a normal programming language, each partial basin would be a table with its current size and its ``leading edge'' (which itself would likely be a sequence).
+% The basins would then be a list of such objects.
+% This concept of a list of tables is something that I find a little tricky to work with in \LaTeX3.
+% Ideally, one would like to have a notion of ``anonymous variables'' that can then be stored in a list, and which can be passed around without requiring explicit names.
+% I have some thoughts on this, but not at a sufficient level to warrant implementing them here unless really, really needed.
+%
+% So instead, I went for a simpler algorithm that iterates towards a solution.
+% Imagine putting a single object on every non-\(9\) cell.
+% Then we allow these objects to ``flow'' downhill until they accumulate in a basin.
+% So at each step, we go through all the cells in the grid and ask ``is there a lower-level neighbour that this cell should flow into?''.
+% If so, we shift the objects from that cell into its neighbour.
+% We keep doing this until we get a pass that doesn't change any cells.
+% These are the basins, and the count of objects is their size.
+%
 % \begin{enumerate}
-% \item The sum of the risk levels is \SmokeBasin{Day09}
+% \item The sum of the risk levels is \SmokeBasin{Day09}.
+% \item The product of the sizes of the largest basins is \BasinSize{Day09}.
 % \end{enumerate}
 % \end{function}
+%
+% \section{Day 10}
+%
+% \begin{function}{\SyntaxScore}
+%
+% Given that \Verb!{! and \Verb!}! are special characters in \TeX, I thought this would be a good example to get to grips with the \texttt{str} data type.
+%
+% This one should have been quite quick, since \LaTeX3 has quite a good set of string manipulation routines.
+% However, overflow in integer arithmetic caused issues again.
+% I ended up writing a \texttt{perl} script to check my numbers and discovered that there were issues with how I was putting big numbers back together.
+% It would also appear that having leading zeros on the solution fools the checker.
+%
+% \begin{enumerate}
+% \item The syntax score for corrupted lines is \SyntaxScore*{Day10}.
+% \item The syntax score for incomplete lines is \SyntaxScore{Day10}.
+% \end{enumerate}
+% \end{function}
+%
+%
+% \begin{function}{\OctopusFlash}
+%
+% \section{Day 11}
+%
+% \begin{enumerate}
+% \item There were \OctopusFlash*{Day11} flashes
+% \item The first all-flash was after \OctopusFlash{Day11} steps
+%
+% \end{enumerate}
+% \end{function}
+%
 %
 % \StopEventually{}
 %
@@ -324,6 +374,10 @@ and the derived files            advent.ins,
 %<@@=advent>
 %    \end{macrocode}
 %
+% Got fed up of warnings
+%    \begin{macrocode}
+\hfuzz=1000pt
+%    \end{macrocode}
 % Load the \LaTeX3 foundation and register us as a \LaTeX3\ package.
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
@@ -340,24 +394,29 @@ solving the Advent of Code 2021}
 {
   \tl_put_right:Nn #1 { { #2 } }
 }
-\cs_generate_variant:Nn \@@_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_generate_variant:Nn
+ \@@_tl_put_right_braced:Nn { NV, cV, cv, Nx, cx }
 
 \cs_new_protected:Nn \@@_tl_gput_right_braced:Nn
 {
   \tl_gput_right:Nn #1 { { #2 } }
 }
-\cs_generate_variant:Nn \@@_tl_gput_right_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_generate_variant:Nn
+ \@@_tl_gput_right_braced:Nn { NV, cV, cv, Nx, cx }
+
 \cs_new_protected:Nn \@@_tl_put_left_braced:Nn
 {
   \tl_put_left:Nn #1 { { #2 } }
 }
-\cs_generate_variant:Nn \@@_tl_put_left_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_generate_variant:Nn
+ \@@_tl_put_left_braced:Nn { NV, cV, cv, Nx, cx }
 
 \cs_new_protected:Nn \@@_tl_gput_left_braced:Nn
 {
   \tl_gput_left:Nn #1 { { #2 } }
 }
-\cs_generate_variant:Nn \@@_tl_gput_left_braced:Nn { NV, cV, cv, Nx, cx }
+\cs_generate_variant:Nn
+ \@@_tl_gput_left_braced:Nn { NV, cV, cv, Nx, cx }
 %    \end{macrocode}
 %
 %
@@ -394,6 +453,10 @@ solving the Advent of Code 2021}
 \tl_new:N \l_@@_tmph_tl
 \tl_new:N \l_@@_tmpi_tl
 
+\str_new:N \l_@@_tmpa_str
+\str_new:N \l_@@_tmpb_str
+\str_new:N \l_@@_tmpc_str
+
 \seq_new:N \l_@@_tmpa_seq
 \seq_new:N \l_@@_tmpb_seq
 \seq_new:N \l_@@_tmpc_seq
@@ -414,14 +477,36 @@ solving the Advent of Code 2021}
 \int_new:N \l_@@_tmpd_int
 
 \bool_new:N \l_@@_tmpa_bool
+\bool_new:N \l_@@_tmpb_bool
 
 \ior_new:N \l_@@_tmpa_ior
 \iow_new:N \l_@@_tmpa_iow
 
 \prop_new:N \l_@@_tmpa_prop
 
-\msg_new:nnn { advent } { missing file } { File~ #1~ doesn't~ exist~ \msg_line_context:}
+\msg_new:nnn
+ { advent }
+ { missing file }
+ { File~ #1~ doesn't~ exist~ \msg_line_context:}
 
+%    \end{macrocode}
+%
+% On occasion we run into arithmetic overflow.
+% To make life a little easier, we overflow at a power of \(10\).
+%    \begin{macrocode}
+\int_const:Nn \c_@@_overflow_int {100000000}
+\cs_new_protected_nopar:Npn \double_int_to_tl:NNN #1#2#3
+{
+  \tl_set:Nx #1 {\int_use:N #3}
+  \int_compare:nNnT {#2} > {0}
+  {
+    \prg_replicate:nn {8 - \tl_count:N #1}
+    {
+      \tl_put_left:Nn #1 {0}
+    }
+    \tl_put_left:Nx #1 {\int_use:N #2}
+  }
+}
 %    \end{macrocode}
 %
 %
@@ -531,7 +616,8 @@ solving the Advent of Code 2021}
   }
   {
     \@@_count_increases:nn {#2}{#1}
-    \prop_gput:NnV \g_@@_answers_prop {Increases#1} \g_@@_output_int
+    \prop_gput:NnV
+    \g_@@_answers_prop {Increases#1} \g_@@_output_int
   }
 
   \int_use:N \g_@@_output_int
@@ -596,7 +682,8 @@ solving the Advent of Code 2021}
         \c_@@_forward_tl
         {
           \int_add:Nn \l_@@_tmpb_int {\l_@@_tmpb_tl}
-          \int_add:Nn \l_@@_tmpc_int {(\l_@@_tmpb_tl) * (\l_@@_tmpa_int)}
+          \int_add:Nn \l_@@_tmpc_int
+          {(\l_@@_tmpb_tl) * (\l_@@_tmpa_int)}
         }
       }
     }
@@ -641,7 +728,12 @@ solving the Advent of Code 2021}
   \begin{itemize}
 \item Depth:~\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl}
 \item Distance:~\tl_item:Nn \g_@@_output_tl {2}
-\item Product:~\int_eval:n { (\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl}) * (\tl_item:Nn \g_@@_output_tl {2})}
+\item Product:~\int_eval:n
+  {
+    (\tl_item:Nn \g_@@_output_tl {\l_@@_tmpa_tl})
+    *
+    (\tl_item:Nn \g_@@_output_tl {2})
+  }
   \end{itemize}
   \tl_gclear:N \g_@@_output_tl
 }
@@ -751,7 +843,8 @@ solving the Advent of Code 2021}
   \begin{itemize}
 \item Gamma~rate:~\int_use:N \l_@@_tmpa_int
 \item Epsilon~rate:~\int_eval:n {4095 - \l_@@_tmpa_int}
-\item Power~consumption:~ \int_eval:n {\l_@@_tmpa_int * (4095 - \l_@@_tmpa_int)}
+\item Power~consumption:~
+  \int_eval:n {\l_@@_tmpa_int * (4095 - \l_@@_tmpa_int)}
   \end{itemize}
   \int_zero:N \l_@@_tmpa_int
   \seq_gclear:N \g_@@_output_seq
@@ -834,7 +927,8 @@ solving the Advent of Code 2021}
   \begin{itemize}
 \item Oxygen~Rate:~\int_use:N \l_@@_tmpa_int
 \item Carbon~Dioxide~Rate:~\int_use:N \l_@@_tmpb_int
-\item Life~Support~Rating:~\int_eval:n {\l_@@_tmpa_int * \l_@@_tmpb_int}
+\item Life~Support~Rating:
+  \int_eval:n {\l_@@_tmpa_int * \l_@@_tmpb_int}
   \end{itemize}
 }
 %    \end{macrocode}
@@ -1283,7 +1377,6 @@ solving the Advent of Code 2021}
 % We save the state as a sequence of integers (no need for an \Verb!intarray! here as the sequence is short).
 % The sequence consists of the number of lantern fish in a particular state, except that we're off-by-one since the states start at \(0\) and sequences start at \(1\).
 %    \begin{macrocode}
-\int_const:Nn \c_@@_overflow_int {100000000}
 \cs_new_protected_nopar:Npn \@@_lantern_fish:nn #1#2
 {
   \group_begin:
@@ -1797,7 +1890,8 @@ solving the Advent of Code 2021}
 %
 %
 % \begin{macro}{
-% \SmokeBasin
+% \SmokeBasin,
+% \BasinSize
 % }
 %
 %    \begin{macrocode}
@@ -1829,13 +1923,13 @@ solving the Advent of Code 2021}
 %
 %
 %    \begin{macrocode}
-\cs_new_protected_nopar:Npn \@@_smoke_basin:nn #1#2
+\cs_new_protected_nopar:Npn \@@_smoke_basin:n #1
 {
   \group_begin:
 %    \end{macrocode}
 % Open the file and read in the data to a sequence.
 %    \begin{macrocode}
-  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
   {
     \int_zero:N \l_@@_tmpa_int
 %    \end{macrocode}
@@ -1891,7 +1985,7 @@ solving the Advent of Code 2021}
 %    \end{macrocode}
 % This gets invoked if there was a problem with opening the file.
 %    \begin{macrocode}
-    \msg_warning:nnn { advent } { missing file } {#2}
+    \msg_warning:nnn { advent } { missing file } {#1}
   }
   \group_end:
 }
@@ -1905,7 +1999,7 @@ solving the Advent of Code 2021}
     \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
   }
   {
-    \@@_smoke_basin:nn {} {#1}
+    \@@_smoke_basin:n {#1}
     \prop_gput:NnV \g_@@_answers_prop {SmokeBasin} \g_@@_output_int
   }
   \int_use:N \g_@@_output_int
@@ -1917,6 +2011,584 @@ solving the Advent of Code 2021}
 %
 %
 %
+% \begin{macro}{
+% \BasinSize
+% }
+%
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_basins_intarray {102*102}
+\intarray_new:Nn \g_@@_flow_intarray {102*102}
+\cs_new_protected_nopar:Npn \@@_basin_size:n #1
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \intarray_gzero:N \g_@@_basins_intarray
+  \intarray_gzero:N \g_@@_flow_intarray
+  \int_step_inline:nn {102}
+  {
+    \intarray_gset:Nnn \g_@@_basins_intarray {##1} {9}
+  }
+  \int_zero:N \l_@@_tmpa_int
+  \int_incr:N \l_@@_tmpa_int
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
+  {
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_set:Nn \l_@@_tmpa_tl {{9}##1{9}}
+      \int_step_inline:nn {102}
+      {
+        \intarray_gset:Nnn \g_@@_basins_intarray {####1 + 102*\l_@@_tmpa_int} {\tl_item:Nn \l_@@_tmpa_tl {####1}}
+        \int_compare:nNnF {\tl_item:Nn \l_@@_tmpa_tl {####1}} = {9}
+        {
+          \intarray_gset:Nnn \g_@@_flow_intarray {####1 + 102*\l_@@_tmpa_int} {1}
+        }
+      }
+      \int_incr:N \l_@@_tmpa_int
+    }
+
+    \int_step_inline:nn {102}
+    {
+      \intarray_gset:Nnn \g_@@_basins_intarray {##1 + 102 * \l_@@_tmpa_int} {9}
+    }
+
+
+    \bool_set_true:N \l_@@_tmpa_bool
+
+    \bool_while_do:Nn \l_@@_tmpa_bool
+    {
+      \bool_set_false:N \l_@@_tmpa_bool
+      \int_step_inline:nnn {2} {101}
+      {
+        \int_step_inline:nnn {1} {100}
+        {
+          \int_compare:nNnT {\intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102} } > {0}
+          {
+            \int_compare:nNnTF {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102} } >  {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102 + 1} }
+            {
+              \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102 + 1}
+              {
+                \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102} +  \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102 + 1}
+              }
+              \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102} {0}
+              \bool_set_true:N \l_@@_tmpa_bool
+            }
+            {
+              \int_compare:nNnTF {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102} } >  {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102 - 1} }
+              {
+                \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102 - 1}
+                {
+                  \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102} +  \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102 - 1}
+                }
+                \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102} {0}
+                \bool_set_true:N \l_@@_tmpa_bool
+              }
+              {
+                \int_compare:nNnTF {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102} } >  {\intarray_item:Nn \g_@@_basins_intarray {##1 + (####1 + 1) * 102} }
+                {
+                  \intarray_gset:Nnn \g_@@_flow_intarray {##1 + (####1 + 1) * 102}
+                  {
+                    \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102} +  \intarray_item:Nn \g_@@_flow_intarray {##1 + (####1 + 1) * 102 }
+                  }
+                  \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102} {0}
+                  \bool_set_true:N \l_@@_tmpa_bool
+                }
+                {
+                  \int_compare:nNnTF {\intarray_item:Nn \g_@@_basins_intarray {##1 + ####1 * 102} } >  {\intarray_item:Nn \g_@@_basins_intarray {##1 + (####1 - 1) * 102} }
+                  {
+                    \intarray_gset:Nnn \g_@@_flow_intarray {##1 + (####1 - 1) * 102}
+                    {
+                      \intarray_item:Nn \g_@@_flow_intarray {##1 + ####1 * 102} +  \intarray_item:Nn \g_@@_flow_intarray {##1 + (####1 - 1) * 102 }
+                    }
+                    \intarray_gset:Nnn \g_@@_flow_intarray {##1 + ####1 * 102} {0}
+                    \bool_set_true:N \l_@@_tmpa_bool
+                  }
+                  {
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    \seq_clear:N \l_@@_tmpa_seq
+    \int_step_inline:nn {102*102}
+    {
+      \int_compare:nNnT {\intarray_item:Nn \g_@@_flow_intarray {##1}} > {0}
+      {
+        \seq_put_right:Nx \l_@@_tmpa_seq  {\intarray_item:Nn \g_@@_flow_intarray {##1}}
+      }
+    }
+    \seq_sort:Nn \l_@@_tmpa_seq
+    {
+      \int_compare:nNnTF { ##1 } > { ##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+
+    \int_set:Nn \l_@@_tmpa_int {1}
+    \prg_replicate:nn {3}
+    {
+      \seq_pop_right:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+      \int_set:Nn \l_@@_tmpa_int {\l_@@_tmpa_int * \l_@@_tmpa_tl}
+    }
+
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \BasinSize {m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {BasinSize} \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+  }
+  {
+    \@@_basin_size:n {#1}
+    \prop_gput:NnV \g_@@_answers_prop {BasinSize} \g_@@_output_int
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+% \begin{macro}{
+% \SyntaxScore
+% }
+%
+%    \begin{macrocode}
+
+\str_const:Nn \c_@@_left_bracket_str {[}
+\str_const:Nn \c_@@_right_bracket_str {]}
+\str_const:Nn \c_@@_left_parenthesis_str {(}
+\str_const:Nn \c_@@_right_parenthesis_str {)}
+\str_const:Nn \c_@@_left_angle_str {<}
+\str_const:Nn \c_@@_right_angle_str {>}
+
+\cs_new_protected_nopar:Npn \@@_syntax_scoring:n #1
+{
+  \group_begin:
+  \iow_open:Nn \l_@@_tmpa_iow {Day10-sequences.txt}
+%    \end{macrocode}
+% Open the file and step through it line by line.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#1 .txt}
+  {
+%    \end{macrocode}
+% These are the two scores, the integer register is for corrupt lines and the sequences are for the incompletes (need two as we get overflow).
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \seq_clear:N \l_@@_tmpa_seq
+    \seq_clear:N \l_@@_tmpb_seq
+    \ior_str_map_inline:Nn \l_@@_tmpa_ior
+    {
+%    \end{macrocode}
+% As we step through the line, this string will hold what we're expecting to see in terms of closing symbols.
+%    \begin{macrocode}
+      \str_clear:N \l_@@_tmpa_str
+      \str_map_inline:nn {##1}
+      {
+%    \end{macrocode}
+% Test the next character, if it is an opening symbol then append the corresponding closing symbol to the tail string.
+%    \begin{macrocode}
+        \str_case_e:nnF {####1}
+        {
+          {\c_@@_left_parenthesis_str} {\str_put_left:NV \l_@@_tmpa_str \c_@@_right_parenthesis_str}
+          {\c_@@_left_bracket_str} {\str_put_left:NV \l_@@_tmpa_str \c_@@_right_bracket_str}
+          {\c_left_brace_str} {\str_put_left:NV \l_@@_tmpa_str \c_right_brace_str}
+          {\c_@@_left_angle_str} {\str_put_left:NV \l_@@_tmpa_str \c_@@_right_angle_str}
+        }
+%    \end{macrocode}
+% If it is a closing symbol, then we check to see if it matches the symbol that we're expecting.
+% If it does, simply remove it from the tail string.
+%    \begin{macrocode}
+        {
+          \str_if_eq:eeTF {####1} {\str_head:N \l_@@_tmpa_str}
+          {
+            \str_set:Nx \l_@@_tmpa_str {\str_tail:N \l_@@_tmpa_str}
+          }
+          {
+%    \end{macrocode}
+% If it does not match, then it is a corrupt line and so we add the score to the running total.
+%    \begin{macrocode}
+            \str_case_e:nn {####1}
+            {
+              {\c_@@_right_parenthesis_str} {\int_add:Nn \l_@@_tmpa_int {3}}
+              {\c_@@_right_bracket_str} {\int_add:Nn \l_@@_tmpa_int {57}}
+              {\c_right_brace_str} {\int_add:Nn \l_@@_tmpa_int {1197}}
+              {\c_@@_right_angle_str} {\int_add:Nn \l_@@_tmpa_int {25137}}
+            }
+%    \end{macrocode}
+% If it is corrupt, quit the innermost loop.
+% We clear the tail string as well so that it doesn't also count as incomplete.
+%    \begin{macrocode}
+            \str_clear:N \l_@@_tmpa_str
+            \str_map_break:
+          }
+        }
+      }
+%    \end{macrocode}
+% Map through the tail, adding the scores.
+% We hit overflow so we need to use doubles.
+%    \begin{macrocode}
+      \int_zero:N \l_@@_tmpb_int
+      \int_zero:N \l_@@_tmpc_int
+      \exp_args:NNV \iow_now:Nn  \l_@@_tmpa_iow \l_@@_tmpa_str
+
+      \str_map_inline:Nn \l_@@_tmpa_str
+      {
+        \int_set:Nn \l_@@_tmpb_int { \l_@@_tmpb_int * 5 }
+        \int_set:Nn \l_@@_tmpc_int { \l_@@_tmpc_int * 5 }
+        \str_case_e:nn {####1}
+        {
+          {\c_@@_right_parenthesis_str} {\int_add:Nn \l_@@_tmpb_int {1}}
+          {\c_@@_right_bracket_str} {\int_add:Nn \l_@@_tmpb_int {2}}
+          {\c_right_brace_str} {\int_add:Nn \l_@@_tmpb_int {3}}
+          {\c_@@_right_angle_str} {\int_add:Nn \l_@@_tmpb_int {4}}
+        }
+        
+        \int_while_do:nNnn {\l_@@_tmpb_int} > {\c_@@_overflow_int-1}
+        {
+          \int_incr:N \l_@@_tmpc_int
+          \int_sub:Nn \l_@@_tmpb_int {\c_@@_overflow_int}
+        }
+      }
+      \bool_if:nT
+      {
+        \int_compare_p:nNn {\l_@@_tmpb_int} > {0}
+        ||
+        \int_compare_p:nNn {\l_@@_tmpc_int} > {0}
+      }
+      {
+        \double_int_to_tl:NNN \l_@@_tmpa_tl \l_@@_tmpc_int \l_@@_tmpb_int
+        \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpa_tl
+      }
+    }
+%    \end{macrocode}
+% Sort the sequence to make it possible to find the median
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpb_int
+    \seq_map_inline:Nn \l_@@_tmpa_seq
+    {
+      \int_set:Nn \l_@@_tmpb_int {\int_max:nn{\l_@@_tmpb_int}{\tl_count:n {##1}}}
+    }
+
+    \seq_clear:N \l_@@_tmpb_seq
+    \seq_map_inline:Nn \l_@@_tmpa_seq
+    {
+      \str_clear:N \l_@@_tmpa_str
+      \prg_replicate:nn {\l_@@_tmpb_int - \tl_count:n {##1}}
+      {
+        \str_put_right:Nn \l_@@_tmpa_str {0}
+      }
+      \str_put_right:Nn \l_@@_tmpa_str {##1}
+      \seq_put_right:NV \l_@@_tmpb_seq \l_@@_tmpa_str
+    }
+
+    \seq_sort:Nn \l_@@_tmpb_seq
+    {
+      \str_compare:nNnTF { ##1 } > { ##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+
+    \tl_set:Nx \l_@@_tmpa_tl {\seq_item:Nn \l_@@_tmpb_seq {(1 + \seq_count:N \l_@@_tmpb_seq)/2}}
+    \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpa_tl}
+    \tl_set:Nn \l_@@_tmpc_tl {0}
+    \bool_while_do:nn
+    {
+      \tl_if_eq_p:NN \l_@@_tmpb_tl \l_@@_tmpc_tl
+    }
+    {
+      \tl_set:Nx \l_@@_tmpa_tl {\tl_tail:N \l_@@_tmpa_tl}
+      \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpa_tl}
+    }
+
+    \tl_gset:Nx \g_@@_output_tl
+    {
+      {\int_use:N \l_@@_tmpa_int}
+      {\tl_use:N \l_@@_tmpa_tl}
+    }
+  
+    \iow_close:N \l_@@_tmpa_iow
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#1}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \SyntaxScore {s m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {SyntaxScore} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl {\tl_use:N \l_@@_tmpa_tl }
+  }
+  {
+    \@@_syntax_scoring:n {#2}
+%    \prop_gput:NnV \g_@@_answers_prop {SyntaxScore} \g_@@_output_tl
+  }
+  \IfBooleanTF {#1}
+  {
+    \tl_item:Nn \g_@@_output_tl {1}
+  }
+  {
+    \tl_item:Nn \g_@@_output_tl {2}
+  }
+
+  \tl_gclear:N \g_@@_output_tl
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{
+% \OctopusFlash
+% }
+%
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_octopus_intarray {10*10}
+\intarray_new:Nn \g_@@_flash_intarray {10*10}
+\seq_const_from_clist:Nn \c_@@_neighbours_seq {-11,-10,-9,-1,1,9,10,11}
+\cs_new_protected_nopar:Npn \@@_octopus_flash:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \int_zero:N \l_@@_tmpa_int
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_map_inline:nn {##1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+        \intarray_gset:Nnn \g_@@_octopus_intarray {\l_@@_tmpa_int} {####1}
+      }
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_zero:N \l_@@_tmpb_int
+    \int_zero:N \l_@@_tmpc_int
+    \tl_if_eq:nnTF {#1} {0}
+    {
+      \prg_replicate:nn {100}
+    }
+    {
+      \bool_while_do:nn
+      {
+        \int_compare_p:nNn { \l_@@_tmpc_int } = {0}
+      }
+    }
+    {
+      \int_incr:N \l_@@_tmpb_int
+%    \end{macrocode}
+% Building the step procedure, clear the grid of octopodes which have flashed.
+%    \begin{macrocode}
+      \intarray_gzero:N \g_@@_flash_intarray
+      \int_step_inline:nn {100}
+      {
+%    \end{macrocode}
+%
+% Increment the energy levels.
+%    \begin{macrocode}
+        \intarray_gset:Nnn \g_@@_octopus_intarray {##1} {\intarray_item:Nn \g_@@_octopus_intarray {##1} + 1}
+      }
+%    \end{macrocode}
+% Now we iterate through the grid looking for octopusses that are above the threshold.
+%    \begin{macrocode}
+      \bool_set_true:N \l_@@_tmpa_bool
+      \bool_while_do:Nn \l_@@_tmpa_bool
+      {
+        \bool_set_false:N \l_@@_tmpa_bool
+        \int_step_inline:nn {100}
+        {
+%    \end{macrocode}
+% Check if this octopus has enough energy and hasn't already flashed on this iteration.
+%    \begin{macrocode}
+          \bool_if:nT
+          {
+            \int_compare_p:nNn {\intarray_item:Nn \g_@@_octopus_intarray {##1}} > {9}
+            &&
+            \int_compare_p:nNn {\intarray_item:Nn \g_@@_flash_intarray {##1}} = {0}
+          }
+          {
+%    \end{macrocode}
+% We got a live one!
+%    \begin{macrocode}
+            \int_incr:N \l_@@_tmpa_int
+            \bool_set_true:N \l_@@_tmpa_bool
+            \intarray_gset:Nnn \g_@@_flash_intarray {##1} {1}
+%    \end{macrocode}
+% Now we need to increment the energies of the neighbours
+%    \begin{macrocode}
+            \seq_map_inline:Nn \c_@@_neighbours_seq
+            {
+%    \end{macrocode}
+% Test to see if this octopus is on the grid
+%    \begin{macrocode}
+              \bool_if:nTF
+              {
+%    \end{macrocode}
+% Bottom edge
+%    \begin{macrocode}
+                \int_compare_p:nNn {##1 + ####1} < {1}
+                ||
+%    \end{macrocode}
+% Top edge
+%    \begin{macrocode}
+                \int_compare_p:nNn {##1 + ####1} > {100}
+                ||
+%    \end{macrocode}
+% Left edge
+%    \begin{macrocode}
+                \int_compare_p:nNn {\int_mod:nn {##1-1}{10} + \int_mod:nn {####1+21}{10}-1 } < {0}
+                ||
+%    \end{macrocode}
+% Right edge
+%    \begin{macrocode}
+                \int_compare_p:nNn {\int_mod:nn {##1-1}{10} + \int_mod:nn {####1+21}{10}-1 } > {9}
+              }
+              {
+%                \tl_show:x {##1,####1,\int_eval:n {##1 + ####1},\int_eval:n {\int_mod:nn {##1-1}{10} + \int_mod:nn {####1+21}{10}-1 }}
+              }
+              {
+%    \end{macrocode}
+% Yes, so increment its energy
+%    \begin{macrocode}
+                \intarray_gset:Nnn \g_@@_octopus_intarray {##1 + ####1} {\intarray_item:Nn \g_@@_octopus_intarray {##1 + ####1} + 1}
+              }
+            }
+          }
+        }
+%    \end{macrocode}
+% Now that we've processed all the current octopides, reset the ones that have flashed.
+% Also check to see whether they all did or not.
+%    \begin{macrocode}
+        \bool_set_true:N \l_@@_tmpb_bool
+        \int_step_inline:nn {100}
+        {
+          \int_compare:nNnTF {\intarray_item:Nn \g_@@_flash_intarray {##1}} = {1}
+          {
+            \intarray_gset:Nnn \g_@@_octopus_intarray {##1} {0}
+          }
+          {
+            \bool_set_false:N \l_@@_tmpb_bool
+          }
+        }
+        \bool_if:nT
+        {
+          \l_@@_tmpb_bool
+          &&
+          \int_compare_p:nNn {\l_@@_tmpc_int} = {0}
+        }
+        {
+          \int_set_eq:NN \l_@@_tmpc_int \l_@@_tmpb_int
+        }
+      }
+    }
+%    \end{macrocode}
+% Display the grid
+%    \begin{macrocode}
+%    \int_step_inline:nn {100}
+%    {
+%      \intarray_item:Nn \g_@@_octopus_intarray {##1}
+%      \int_compare:nNnT {\int_mod:nn {##1}{10}} = {0}
+%      {
+%        \\
+%      }
+%    }
+    \tl_if_eq:nnTF {#1} {0}
+    {
+      \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+    }
+    {
+      \int_gset_eq:NN \g_@@_output_int \l_@@_tmpc_int
+    }
+
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \OctopusFlash {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {OctopusFlash} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+    }
+    {
+      \@@_octopus_flash:nn {0} {#2}
+      \prop_gput:NnV \g_@@_answers_prop {OctopusFlash} \g_@@_output_int
+    }
+  }
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {OctopusAllFlash} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+    }
+    {
+      \@@_octopus_flash:nn {1} {#2}
+%    \prop_gput:NnV \g_@@_answers_prop {OctopusAllFlash} \g_@@_output_int
+    }
+  }
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \iffalse
+%</advent>
+% \fi
+%
+%
+% \iffalse
+%<*template>
+% \fi
 %
 % \begin{macro}{
 % \advent_template
@@ -1963,8 +2635,10 @@ solving the Advent of Code 2021}
 }
 %    \end{macrocode}
 % \end{macro}
+%
+%
 % \iffalse
-%</advent>
+%</template>
 % \fi
 %\Finale
 \endinput
