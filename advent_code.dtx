@@ -63,13 +63,14 @@ and the derived files            advent.ins,
 %</internal>
 %<*driver>
 \documentclass[full]{l3doc}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
-%\usepackage{morefloats}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{TeX Gyre Pagella}
+\setmathfont{TeX Gyre Pagella Math}
+
+\usepackage{tikz}
 \usepackage{trace}
 \usepackage{advent}
-%\traceoff
-%\usepackage[numbered]{hypdoc}
 \definecolor{lstbgcolor}{rgb}{0.9,0.9,0.9} 
  
 \usepackage{listings}
@@ -349,10 +350,10 @@ and the derived files            advent.ins,
 % \end{function}
 %
 %
-% \begin{function}{\OctopusFlash}
 %
 % \section{Day 11}
 %
+% \begin{function}{\OctopusFlash}
 % \begin{enumerate}
 % \item There were \OctopusFlash*{Day11} flashes
 % \item The first all-flash was after \OctopusFlash{Day11} steps
@@ -360,6 +361,72 @@ and the derived files            advent.ins,
 % \end{enumerate}
 % \end{function}
 %
+%
+% \section{Day 12}
+%
+%
+% \begin{function}{\CavePath}
+% This was a straight-forward graph traversal, which is quite simple using recursion.
+% Macro-expansion is well-suited to recursion, so there weren't too many issues with this one.
+% I avoided groupings in the recursion as I didn't know how long the paths would get (I'm pretty sure that \TeX\ could handle it, but thought I'd see if I could avoid it) which meant that I needed to ensure that no temporary variables were used either side of a recursion.
+% Fortunately, \Verb!\exp_args! and its variants handled the only step where I need to worry.
+%
+% To handle the second version, I set a parameter to be used to mark when a small cave had been visited which could be either \(1\) or \(2\).
+% In the easy version, this was set at \(2\) to indicate that every small cave maxed out straight away.
+% In the harder version, this was set at \(1\) to allow for a double increment.
+% I slightly misread the instructions first time and thought that every small cave could be visited twice, else I might have implemented this differently.
+% To take that into account, if a small cave has already been marked with a \(2\) then we compare the visit count against \(1\), otherwise against \(2\).
+% In the first set once we've visited a small cave then it is marked with a \(2\) so the exact value of this limit doesn't matter.
+% In the second set then once we've visited a particular small cave twice then (for the continuation of that path) the limit is lowered to \(1\) and thereafter small caves can only be visited once.
+% 
+%
+% \begin{enumerate}
+% \item There are \CavePath*{Day12} paths through the system visiting small caves at most once
+% \item There are \CavePath{Day12} paths through the system visiting small caves at most twice
+% \end{enumerate}
+% \end{function}
+%
+%
+%
+% \section{Day 13}
+%
+% \begin{function}{\FoldPaper}
+% The fold lines are ``in half'' at each step, so it's really just a matter of figuring out the final position of each dot.
+% Also, the \(x\) and \(y\) coordinates can be worked out separately.
+% 
+% The \(x\)--coordinates end up between \(0\) and \(39\), and there is a one unit separation between the intervals.
+% So we need to work out the interval that a point lies in and then fold that down on to \([0,39]\).
+%
+% The fold lines that act on the \(x\)--coordinates are at \(41 \times k - 1\).
+% So to figure out an \(x\)--coordinate's final resting place, we figure out its interval by looking at the integer quotient of \((x + 1)\) by \(41\).
+% If this is even, we take the remainder of dividing \((x+1)\) by \(41\), and subtract \(1\); if odd, we take \(41\) minus that remainder.
+%
+% \begin{enumerate}
+% \item After folding once, there are \FoldPaper*{655}{894}{Day13} dots visible
+% \item After all the foldings, the paper looks like:
+%
+% \FoldPaper{40}{6}{Day13}
+% \end{enumerate}
+% \end{function}
+%
+%
+% \section{Day 14}
+%
+% \begin{function}{\Polymer}
+% The tricky bit with this one is counting a token list that is potentially over the overflow limit.
+% Once the polymer token list has been generated, the list is sorted and then split into sub-lists corresponding to each letter.
+% However, these sub-lists are created with a single letter, \texttt{X}, so that they can be compared as token lists to see which is the shortest and longest.
+% This is done by seeing if one token list is contained within another; if it is then it is shorter.
+% So this allows us to sort the lists to find the longest and shortest without explicitly counting them.
+% Finding the difference is also done by stripping off the shortest from the longest.
+% Only at the last step do we need to do any actual counting.  
+% 
+%
+% \begin{enumerate}
+% \item The difference between the most common and least common elements in the polymer after \(10\) iterations is \Polymer{10}{Day14}.
+% ^^A\item The difference between the most common and least common elements in the polymer after \(40\) iterations is \Polymer{40}{Day14}.
+% \end{enumerate}
+% \end{function}
 %
 % \StopEventually{}
 %
@@ -483,6 +550,8 @@ solving the Advent of Code 2021}
 \iow_new:N \l_@@_tmpa_iow
 
 \prop_new:N \l_@@_tmpa_prop
+\prop_new:N \l_@@_tmpb_prop
+\prop_new:N \l_@@_tmpc_prop
 
 \msg_new:nnn
  { advent }
@@ -520,8 +589,6 @@ solving the Advent of Code 2021}
 }
 
 \prop_gremove:Nn \g_@@_answers_prop {Template}
-\prop_gremove:Nn \g_@@_answers_prop {DigitScramble}
-
 
 \AddToHook {enddocument} 
 {
@@ -535,9 +602,18 @@ solving the Advent of Code 2021}
   }
   \iow_close:N \l_@@_tmpa_iow
 }
-
-
-
+%    \end{macrocode}
+%
+% Clear the outputs
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_clear_outputs:
+{
+  \tl_gclear:N \g_@@_output_tl
+  \int_gzero:N \g_@@_output_int
+  \seq_gclear:N \g_@@_output_seq
+  \bool_gset_false:N \g_@@_output_bool
+  \prop_gclear:N \g_@@_output_prop
+}
 %    \end{macrocode}
 %
 % \begin{macro}{
@@ -2571,7 +2647,7 @@ solving the Advent of Code 2021}
     }
     {
       \@@_octopus_flash:nn {1} {#2}
-%    \prop_gput:NnV \g_@@_answers_prop {OctopusAllFlash} \g_@@_output_int
+      \prop_gput:NnV \g_@@_answers_prop {OctopusAllFlash} \g_@@_output_int
     }
   }
   \int_use:N \g_@@_output_int
@@ -2579,6 +2655,519 @@ solving the Advent of Code 2021}
 }
 %    \end{macrocode}
 % \end{macro}
+%
+%
+% \begin{macro}{
+% \CavePath
+% }
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_cave_path:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data to a sequence.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% This prop will contain the edge information, the keys are the caves and the values are a token list of connected caves.
+%    \begin{macrocode}
+    \prop_clear:N \l_@@_tmpa_prop
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_set:Nx \l_@@_tmpa_tl {\tl_trim_spaces:n {##1}}
+%    \end{macrocode}
+% Parse the endge information with a separate function
+%    \begin{macrocode}
+      \exp_last_unbraced:NNV \@@_cave_passage:w \l_@@_tmpa_prop \l_@@_tmpa_tl \q_stop
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+% This prop will contain information as to whether a cave can be revisited or not.
+% \(0\) for can revisit, first parameter for can't.
+%    \begin{macrocode}
+    \prop_clear:N \l_@@_tmpb_prop
+    \prop_map_inline:Nn \l_@@_tmpa_prop
+    {
+      \str_if_eq:eeTF {##1} {\str_lowercase:n {##1}}
+      {
+        \prop_put:Nnn \l_@@_tmpb_prop {##1} {#1}
+      }
+      {
+        \prop_put:Nnn \l_@@_tmpb_prop {##1} {0}
+      }
+    }
+%    \end{macrocode}
+%
+% Now to traverse the graph, fortunately a macro expansion language is supremely suited to recursion.
+%
+% We have a sequence for our current path, a prop of the graph, a prop that tells us which can be revisited, and a prop of those that can't be visited.
+% As we recurse, we visit a node and possibly mark it as un-visitable (using the second prop to determine that).
+% Then we iterate through its connected nodes, visiting each in turn.
+%
+% The first task is to count paths, so when we reach the end then we want to increment a counter.
+%    \begin{macrocode}
+    \seq_clear:N \l_@@_tmpa_seq
+    \prop_clear:N \l_@@_tmpc_prop
+    \prop_map_inline:Nn \l_@@_tmpa_prop
+    {
+      \prop_put:Nnn \l_@@_tmpc_prop {##1} {0}
+    }
+%    \end{macrocode}
+% Remove all outgoing edges from the \texttt{end} node
+%    \begin{macrocode}
+    \prop_put:Nnn \l_@@_tmpa_prop {end} {}
+    \int_zero:N \l_@@_tmpa_int
+    \@@_visit_node:NNNNnn \l_@@_tmpa_seq \l_@@_tmpa_prop \l_@@_tmpb_prop \l_@@_tmpc_prop {start} {\int_incr:N \l_@@_tmpa_int}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%
+% Parse a cave passage pair
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_cave_passage:w #1#2-#3 \q_stop
+{
+  \tl_if_eq:nnF {#3} {start}
+  {
+    \tl_clear:N \l_@@_tmpa_tl
+    \prop_get:NnNTF #1 {#2} \l_@@_tmpa_tl
+    {
+      \tl_put_right:Nn \l_@@_tmpa_tl { {#3} }
+    }
+    {
+      \tl_set:Nn \l_@@_tmpa_tl { {#3} }
+    }
+    \prop_put:NnV #1 {#2} \l_@@_tmpa_tl
+  }
+  \tl_if_eq:nnF {#2} {start}
+  {
+    \tl_clear:N \l_@@_tmpa_tl
+    \prop_get:NnNTF #1 {#3} \l_@@_tmpa_tl
+    {
+      \tl_put_right:Nn \l_@@_tmpa_tl { {#2} }
+    }
+    {
+      \tl_set:Nn \l_@@_tmpa_tl { {#2} }
+    }
+    \prop_put:NnV #1 {#3} \l_@@_tmpa_tl
+  }
+}
+%    \end{macrocode}
+%
+% Visit a node
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_visit_node:NNNNnn #1#2#3#4#5#6
+{
+%    \end{macrocode}
+% Arguments are:
+% \begin{enumerate}
+% \item Sequence of nodes on current path
+% \item Prop containing structure of graph
+% \item Prop containing the re-visitable information
+% \item Prop containing the visited information
+% \item Current node name
+% \item Code to execute at the end
+% \end{enumerate}
+%
+% Put the current node on the sequence
+%    \begin{macrocode}
+  \seq_put_right:Nn #1{#5}
+%    \end{macrocode}
+% Test to see if it is the end node
+%    \begin{macrocode}
+  \tl_if_eq:nnT {#5} {end}
+  {
+%    \end{macrocode}
+% Yes, so execute the end-path code
+%    \begin{macrocode}
+    #6
+  }
+%    \end{macrocode}
+% Prepare to visit its children.
+%
+% Possibly mark this node as visited.
+%    \begin{macrocode}
+  \prop_get:NnN #3 {#5} \l_@@_tmpa_tl
+  \prop_get:NnN #4 {#5} \l_@@_tmpb_tl
+  \prop_put:Nnx #4 {#5} {\int_eval:n { \l_@@_tmpa_tl + \l_@@_tmpb_tl }}
+%    \end{macrocode}
+% Get the list of children
+%    \begin{macrocode}
+  \prop_get:NnN #2 {#5} \l_@@_tmpa_tl
+%    \end{macrocode}
+% Check to see which are visitable.
+%
+% First, we need to see if our ``cap'' is one visit or two to the small caves by looking for a \(2\) in the visited prop
+%    \begin{macrocode}
+  \int_set:Nn \l_@@_tmpb_int {2}
+  \prop_map_inline:Nn #4
+  {
+    \int_compare:nNnT {##2} = {2}
+    {
+      \int_set:Nn \l_@@_tmpb_int {1}
+    }
+  }
+%    \begin{macrocode}
+  \tl_clear:N \l_@@_tmpb_tl
+  \tl_map_inline:Nn \l_@@_tmpa_tl
+  {
+    \prop_get:NnN #4 {##1} \l_@@_tmpc_tl
+    \int_compare:nNnT {\l_@@_tmpc_tl} < {\l_@@_tmpb_int}
+    {
+      \tl_put_right:Nn \l_@@_tmpb_tl {{##1}}
+    }
+  }
+%    \end{macrocode}
+% Visit the list of visitable nodes, we use \Verb!V! expansion here because we don't want to leave any temporary variables that might get overwritten by recursions (could use grouping here, but am trying to avoid it)
+%    \begin{macrocode}
+  \exp_args:NV \tl_map_inline:nn \l_@@_tmpb_tl
+  {
+    \@@_visit_node:NNNNnn #1#2#3#4{##1}{#6}
+  }
+%    \end{macrocode}
+% After visiting this node, we remove its marking and remove it from the sequence
+%    \begin{macrocode}
+  \prop_get:NnN #3 {#5} \l_@@_tmpa_tl
+  \prop_get:NnN #4 {#5} \l_@@_tmpb_tl
+  \prop_put:Nnx #4 {#5} {\int_eval:n { \l_@@_tmpb_tl - \l_@@_tmpa_tl }}
+  \seq_pop_right:NN #1 \l_@@_tmpa_tl
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \CavePath {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {CavePathA} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+    }
+    {
+      \@@_cave_path:nn {2}{#2}
+      \prop_gput:NnV \g_@@_answers_prop {CavePathA} \g_@@_output_int
+    }
+  }
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {CavePathB} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+    }
+    {
+      \@@_cave_path:nn {1}{#2}
+      \prop_gput:NnV \g_@@_answers_prop {CavePathB} \g_@@_output_int
+    }
+  }
+
+  \int_use:N \g_@@_output_int
+  \int_gzero:N \g_@@_output_int
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+% \FoldPaper
+% }
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_fold_paper:nnn #1#2#3
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#3 .txt}
+  {
+    \seq_clear:N \l_@@_tmpa_seq
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_if_in:nnT {##1} {,}
+      {
+        \@@_paper_dot:NNw \l_@@_tmpa_int \l_@@_tmpb_int ##1 \q_stop
+        \int_set:Nn \l_@@_tmpa_int
+        {
+          \int_mod:nn { \l_@@_tmpa_int + 1 }{#1 + 1}
+          +
+          \int_mod:nn{ \int_div_truncate:nn {\l_@@_tmpa_int+1}{#1 + 1}}{2}
+          *
+          (
+          (#1 + 1) - 2*\int_mod:nn { \l_@@_tmpa_int + 1 }{#1 + 1}
+          )
+          -1
+        }
+        \int_set:Nn \l_@@_tmpb_int
+        {
+          \int_mod:nn { \l_@@_tmpb_int + 1 }{#2 + 1}
+          +
+          \int_mod:nn{ \int_div_truncate:nn {\l_@@_tmpb_int+1}{#2 + 1}}{2}
+          *
+          (
+          (#2 + 1) - 2*\int_mod:nn { \l_@@_tmpb_int + 1 }{#2 + 1}
+          )
+          -1
+        }
+      }
+      \seq_put_right:Nx \l_@@_tmpa_seq
+      {
+        {\int_use:N \l_@@_tmpa_int}
+        {\int_use:N \l_@@_tmpb_int}
+      }
+    }
+    
+    \seq_remove_duplicates:N \l_@@_tmpa_seq
+
+    \ior_close:N \l_@@_tmpa_ior
+
+    \seq_gset_eq:NN \g_@@_output_seq \l_@@_tmpa_seq
+
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#3}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_paper_dot:NNw #1#2#3,#4 \q_stop
+{
+  \int_set:Nn #1{#3}
+  \int_set:Nn #2{#4}
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \FoldPaper {s m m m}
+{
+
+  \IfBooleanTF {#1}
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {FoldPaper-#2-#3} \l_@@_tmpa_tl
+    {
+      \int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}
+    }
+    {
+      \@@_fold_paper:nnn {#2}{#3}{#4}
+      \int_gset:Nn \g_@@_output_int {\seq_count:N \g_@@_output_seq}
+      \prop_gput:NnV \g_@@_answers_prop {FoldPaper-#2-#3} \g_@@_output_int
+    }
+    \int_use:N \g_@@_output_int
+  }
+  {
+    \prop_get:NnNTF \g_@@_answers_prop {FoldPaper-#2-#3} \l_@@_tmpa_tl
+    {
+      \exp_args:NNV\seq_gset_from_clist:Nn \g_@@_output_seq \l_@@_tmpa_tl
+    }
+    {
+      \@@_fold_paper:nnn {#2}{#3}{#4}
+      
+      \prop_gput:Nnx \g_@@_answers_prop {FoldPaper-#2-#3} {\seq_use:Nn \g_@@_output_seq {,}}
+    }
+    \begin{tikzpicture}[scale=.25,yscale=-1]
+    \draw[gray] (0,0) grid (#2-1,#3-1);
+    \seq_map_inline:Nn \g_@@_output_seq
+    {
+      \fill (\tl_item:nn {##1}{1}, \tl_item:nn {##1}{2}) circle[radius=.5];
+    }
+    \end{tikzpicture}
+  }
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+%
+%
+% \begin{macro}{
+% \Polymer
+% }
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_polymerisation:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% Read in the first line as the template, and the second is blank
+%    \begin{macrocode}
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpb_tl
+%    \end{macrocode}
+% Now read in the replacement patterns
+%    \begin{macrocode}
+    \prop_clear:N \l_@@_tmpa_prop
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \@@_parse_polymer:Nw \l_@@_tmpa_prop ##1 \q_stop
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+% This loop applies the replacement rules to the initial string
+%    \begin{macrocode}
+    \prg_replicate:nn {#1}
+    {
+%    \end{macrocode}
+% The \texttt{tmpb} token list holds the new pattern as it is being created, the \texttt{tmpc} token list holds the current pair.
+% We seed it with a non-occuring letter so that the initial one doesn't match, but so that we can always assume it has a character at the outset.
+%    \begin{macrocode}
+      \tl_clear:N \l_@@_tmpb_tl
+      \tl_set:Nn \l_@@_tmpc_tl {z}
+%    \end{macrocode}
+% Now we step along the current string applying relevant replacements.
+%    \begin{macrocode}
+      \tl_map_inline:Nn \l_@@_tmpa_tl
+      {
+        \tl_put_right:Nn \l_@@_tmpc_tl {##1}
+%    \end{macrocode}
+% If there is an insertion for this pair, add it to the token list
+%    \begin{macrocode}
+        \prop_get:NVNT \l_@@_tmpa_prop \l_@@_tmpc_tl \l_@@_tmpd_tl
+        {
+          \tl_put_right:NV \l_@@_tmpb_tl \l_@@_tmpd_tl
+        }
+%    \end{macrocode}
+% Reset for the next time round
+%    \begin{macrocode}
+        \tl_put_right:Nn \l_@@_tmpb_tl {##1}
+        \tl_set:Nx \l_@@_tmpc_tl {\tl_tail:N \l_@@_tmpc_tl}
+      }
+      \tl_set_eq:NN \l_@@_tmpa_tl  \l_@@_tmpb_tl
+    }
+%    \end{macrocode}
+% Sort the resulting token list to make it easy to figure out which is the longest and shortest
+%    \begin{macrocode}
+    \tl_sort:Nn \l_@@_tmpa_tl
+    {
+      \int_compare:nNnTF { `##1 } > { `##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+%    \end{macrocode}
+%
+% Here, we split the token list into sublists consisting of repetitions of a single character but we replace that character by an \texttt{X}.
+% The point of this is to make it possible to compare lengths of occurences of each letter without actually counting anything since the second part is liable to take us over the overflow limit.
+%    \begin{macrocode}   
+    \tl_clear:N \l_@@_tmpc_tl
+    \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpa_tl}
+    \seq_clear:N \l_@@_tmpa_seq
+    \tl_map_inline:Nn \l_@@_tmpa_tl
+    {
+      \tl_if_eq:NnTF \l_@@_tmpb_tl {##1}
+      {
+        \tl_put_right:Nn \l_@@_tmpc_tl {X}
+      }
+      {
+        \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpc_tl
+        \tl_set:Nn \l_@@_tmpc_tl {X}
+        \tl_set:Nn \l_@@_tmpb_tl {##1}
+      }
+    }
+    \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpc_tl
+%    \end{macrocode}
+%
+% We use prefixing to sort the sequence: if one token list appears in another then it must be shorter.
+%    \begin{macrocode}
+    \seq_sort:Nn \l_@@_tmpa_seq
+    {
+      \tl_if_in:nnTF {##1} {##2}
+      { \sort_return_same: }
+      { \sort_return_swapped: }
+    }
+%    \end{macrocode}
+% Get the first and last elements of the list.
+%    \begin{macrocode}
+    \seq_get_left:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+    \seq_get_right:NN \l_@@_tmpa_seq \l_@@_tmpb_tl
+%    \end{macrocode}
+% Now trim the longer list by stripping off tokens corresponding to the shorter list.
+%    \begin{macrocode}
+    \tl_map_inline:Nn \l_@@_tmpb_tl
+    {
+      \tl_set:Nx \l_@@_tmpa_tl {\tl_tail:N \l_@@_tmpa_tl}
+    }
+%    \end{macrocode}
+% Finally, calculate the length of what is left.
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_zero:N \l_@@_tmpb_int
+    \tl_map_inline:Nn \l_@@_tmpa_tl
+    {
+      \int_incr:N \l_@@_tmpa_int
+      \int_compare:nNnT {\l_@@_tmpa_int} > {\c_@@_overflow_int}
+      {
+        \int_incr:N \l_@@_tmpb_int
+        \int_sub:Nn \l_@@_tmpa_int {\c_@@_overflow_int}
+      }
+    }
+    \double_int_to_tl:NNN \l_@@_tmpa_tl \l_@@_tmpb_int \l_@@_tmpa_int
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_parse_polymer:Nw #1#2->#3\q_stop
+{
+  \tl_set:Nn \l_@@_tmpb_tl {#2}
+  \tl_trim_spaces:N \l_@@_tmpb_tl
+  \tl_set:Nn \l_@@_tmpc_tl {#3}
+  \tl_trim_spaces:N \l_@@_tmpc_tl
+  \prop_put:NVV #1 \l_@@_tmpb_tl \l_@@_tmpc_tl
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \Polymer {m m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {Polymerisation-#1} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  {
+    \@@_polymerisation:nn {#1}{#2}
+%    \prop_gput:NnV \g_@@_answers_prop {Polymerisation-#1} \g_@@_output_tl
+  }
+  \tl_use:N \g_@@_output_tl
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
+%
 %
 %
 % \iffalse
@@ -2599,7 +3188,7 @@ solving the Advent of Code 2021}
 {
   \group_begin:
 %    \end{macrocode}
-% Open the file and read in the data to a sequence.
+% Open the file and read in the data.
 %    \begin{macrocode}
   \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
   {
@@ -2631,7 +3220,7 @@ solving the Advent of Code 2021}
     \prop_gput:NnV \g_@@_answers_prop {Template} \g_@@_output_tl
   }
   \tl_use:N \g_@@_output_tl
-  \tl_gclear:N \g_@@_output_tl
+  \@@_clear_outputs:
 }
 %    \end{macrocode}
 % \end{macro}
