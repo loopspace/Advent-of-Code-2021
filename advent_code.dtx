@@ -63,11 +63,13 @@ and the derived files            advent.ins,
 %</internal>
 %<*driver>
 \documentclass[full]{l3doc}
+\usepackage{amsmath}
 \usepackage{fontspec}
 \usepackage{unicode-math}
 \setmainfont{TeX Gyre Pagella}
 \setmathfont{TeX Gyre Pagella Math}
 
+\usepackage{longtable}
 \usepackage{tikz}
 \usepackage{trace}
 \usepackage{advent}
@@ -412,21 +414,118 @@ and the derived files            advent.ins,
 %
 % \section{Day 14}
 %
-% \begin{function}{\Polymer}
-% The tricky bit with this one is counting a token list that is potentially over the overflow limit.
-% Once the polymer token list has been generated, the list is sorted and then split into sub-lists corresponding to each letter.
-% However, these sub-lists are created with a single letter, \texttt{X}, so that they can be compared as token lists to see which is the shortest and longest.
-% This is done by seeing if one token list is contained within another; if it is then it is shorter.
-% So this allows us to sort the lists to find the longest and shortest without explicitly counting them.
-% Finding the difference is also done by stripping off the shortest from the longest.
-% Only at the last step do we need to do any actual counting.  
+% \begin{function}{\Polymer,\LongPolymer}
+% For the first task, I did this the naive way: starting with the original list and then applying the replacements \(10\) times over, then sorting the resulting list, splitting it into sections of the same letter, sorting them by length, and finding the difference between the lengths of the longest and shortest.
+%
+% For the second, I figured that arithmetic overflow would become an issue, so I redesigned the parts that require arithmetic.
+% Instead of sorting by \emph{length}, I sorted by \emph{inclusion} (minor point: so when splitting into sections of the same letter I then replaced that letter by an \texttt{X} so that all the substrings were of the same letter and only differed by length), and instead of doing \emph{subtraction}, I did \emph{exclusion}.
+% So the only time that numbers were involved was in counting the difference at the end.
+%
+% However, even this fell over on the \(40\) iteration version, and a bit of debugging (\Verb!\tl_show:n {got~here}!) showed that even the replacement part was too much.
+% Switching to \texttt{lua} seems against the spirit of what I'm doing, so I needed a different procedure.
+%
+% I've left my modified original method in place for the \(10\) iteration version, just for demonstration purposes, though I think it is a bit slower than the actual original version -- I guess that using integers earlier is quicker than the set theoretic methods I ended up with (but since all answers get cached, this only slows it down once).
+%
+% The refactored method works on the principle that there are only a certain number of pairs that can occur, and each acts independently of the others.
+% So instead of thinking of it as a single string that we work through, we can regard it as a sequence of pairs that then get replaced by other pairs.
+% Keeping count of how many times each pair occurs is then much more efficient, and rather than working pair-by-pair we work \emph{unique} pair-by-\emph{unique} pair, meaning that even though the numbers get big, the number of operations doesn't.
+% There will need to be a bit of work to guard against overflow, but having a double copy of the list of counts should suffice for that. 
 % 
 %
 % \begin{enumerate}
 % \item The difference between the most common and least common elements in the polymer after \(10\) iterations is \Polymer{10}{Day14}.
-% ^^A\item The difference between the most common and least common elements in the polymer after \(40\) iterations is \Polymer{40}{Day14}.
+% \item The difference between the most common and least common elements in the polymer after \(40\) iterations is \LongPolymer{40}{Day14}.
 % \end{enumerate}
 % \end{function}
+%
+%
+%
+% \section{Day 15}
+%
+% \begin{function}{\ChitonRisk}
+%
+% My algorithm for this depends on the fact that if a path of lowest risk from cell \(A\) to cell \(B\) passes through cell \(C\), then its subpaths from \(A\) to \(C\) and from \(C\) to \(B\) must also be of lowest risk for their start and end points.
+% Also, the lowest risk path to a cell \(D\) must pass through one of its immediate neighbours, so the lowest risk to cell \(D\) must be equal to the minimum risk to its neighbours plus the cost of entering cell \(D\).
+%
+% So we start by giving each cell a sufficiently high initial path risk, guaranteed not to be the lowest risk to that cell, and then iterate over each cell comparing its current risk with the risk from its neighbours.
+% This will eventually assign each cell with its lowest path risk.
+% 
+% With the bigger grid for the second task then the naive algorithm that repeated iterates over the entire grid until it stabilises runs too slow.
+% A simple optimisation, in which we keep track of which cells have actually been updated so that we only need to consider their immediate neighbours, also runs too slow.
+%
+% \begin{enumerate}
+% \item On the single grid, the lowest total risk is \ChitonRisk*{Day15}.
+% ^^A\item On the multiple grid, the lowest total risk is \ChitonRisk{Day15}.
+% \end{enumerate}
+% \end{function}
+%
+%
+% \section{Day 16}
+%
+% Skipping for the moment \dots\ looks a little complicated to figure out what's actually going on.
+%
+%
+% \section{Day 17}
+%
+% \begin{function}{\TrickShot}
+% The first part of this is simple enough to solve with just Mathematics.
+% As the probe travels up and then down, the model of its vertical velocity means that it will pass through the same levels on its way down as it did on its way up.
+% So at some point it will be at height \(0\) having just travelled (vertically) with the negative of its initial vertical velocity.
+% To get the highest vertical position, we want the maximum (positive) initial vertical velocity.
+% These two together means that our ideal initial vertical velocity is such that it is as big as possible while ensuring that it doesn't overshoot the target area when it descends below the horizon.
+% So when it is at \(0\) travelling back down, its velocity should be \(-148\).
+% This means that its initial vertical velocity should be \(147\) and it will travel \(\frac12 \times 147 \times (147 + 1) = \TrickShot*{Day17}\) to its highest point.
+%
+% The only thing to check is that there is a horizontal velocity that means it will be in the target area when it descends.
+% This is straightforward, as once the probe reaches \(0\) velocity horizontally then it stays there (horizontally), so we just need to find a horizontal velocity so that when it stops moving horizontally then it is in the target zone, and that this happens before it reaches it vertically.
+% An initial horizontal velocity of \(17\) means that it reaches \(\frac12 \times 17 \times (17 + 1) = 153\), so this is fine.
+%
+% With the second part, the way that the distances and initial velocities are related is that if the initial velocity is \(n\) then after \(k\) steps, the probe has travelled:
+%
+% \[
+% n + (n-1) + (n-2) + \dots + (n - k + 1) = \frac12 k (2 n - k + 1)
+% \]
+%
+% In the vertical setting, we can have \(k > n\) but in the horizontal then once \(k\) is bigger than \(n\) the probe stops (horizontally) at \(\frac12 n (n + 1)\).
+%
+% It makes the problem more tractable if we focus on the number of steps.
+% This is because we need the probe to be in the target area both horizontally and vertically after the same number of steps.
+% So for a given number of steps, we work out which horizontal and vertical initial velocities land the probe in the target ranges.
+%
+% That is to say, for a fixed \(k\) we look for all \(n\) such that:
+% ^^A
+% \[
+% 139 \le \frac12 k (2 n - k + 1) \le 187 \quad \text{and} \; n \ge k
+% \]
+% ^^A
+% and all \(m\) such that:
+% ^^A
+% \[
+% -148 \le \frac12 k (2 m - k + 1) \le -89
+% \]
+%
+% Rearranging \(a \le \frac12 k ( 2 n - k + 1) \le b\) leads to:
+% ^^A
+% \[
+% \frac{a}{k} + \frac{k-1}{2} \le n \le \frac{b}{k} + \frac{k-1}{2}
+% \]
+%
+% So for each possible \(k\), we can calculate these ranges and so figure out the velocities that work for that particular \(k\).
+% For the horizontal, then once we get to \(k = 18\) then we switch to only using \(\{17,18\}\) since those are the only horizontal velocities that work with \(18\) or more steps.
+% 
+% We do, however, have to keep track of the actual velocities so that we don't double count.
+% It is possible that a velocity give more than one solution so we need to remove duplicates at the end (or, possibly more efficiently, as we're going along).
+%
+% For complete honesty, I kept getting this one wrong so eventually wrote a \texttt{python} program to calculate the actual answer for comparison.
+% Having done that, I discovered that my error in this code was in writing one of the boundaries as \(-98\) instead of \(-89\). 
+%
+%
+% \begin{enumerate}
+% \item The maximum height of a trick shot is \TrickShot*{Day17}.
+% \item The number of possible launch velocities is \TrickShot{Day17}.
+% \end{enumerate}
+% \end{function}
+%
 %
 % \StopEventually{}
 %
@@ -613,6 +712,42 @@ solving the Advent of Code 2021}
   \seq_gclear:N \g_@@_output_seq
   \bool_gset_false:N \g_@@_output_bool
   \prop_gclear:N \g_@@_output_prop
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\tl_const:Nn \c_@@_tl_tl {tl}
+\tl_const:Nn \c_@@_int_tl {int}
+\tl_const:Nn \c_@@_seq_tl {seq}
+\tl_const:Nn \c_@@_bool_tl {bool}
+\tl_const:Nn \c_@@_prop_tl {prop}
+\cs_new_protected_nopar:Npn \@@_check_answer:nnn #1#2#3
+{
+  \group_begin:
+  \tl_set:Nn \l_@@_tmpb_tl {#1}
+  \prop_get:NnNTF \g_@@_answers_prop {#2} \l_@@_tmpa_tl
+  {
+    \tl_case:Nn \l_@@_tmpb_tl
+    {
+      \c_@@_tl_tl {\tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl}
+      \c_@@_int_tl {\int_gset:Nn \g_@@_output_int {\tl_use:N \l_@@_tmpa_tl}}
+      \c_@@_seq_tl {\exp_args:NNV\seq_gset_from_clist:Nn \g_@@_output_seq \l_@@_tmpa_tl}
+    }
+  }
+  {
+    \iow_log:n {No~ solution~ found~ for~ #2,~ recalculating.}
+    #3
+    \tl_case:Nn \l_@@_tmpb_tl
+    {
+      \c_@@_tl_tl {\prop_gput:NnV \g_@@_answers_prop {#2} \g_@@_output_tl}
+      \c_@@_int_tl {\prop_gput:NnV \g_@@_answers_prop {#2} \g_@@_output_int}
+      \c_@@_seq_tl
+      {
+        \prop_gput:Nnx \g_@@_answers_prop {#2} {\seq_use:Nn \g_@@_output_seq {,}}
+      }
+    }
+  }
+  \group_end:
 }
 %    \end{macrocode}
 %
@@ -2427,11 +2562,11 @@ solving the Advent of Code 2021}
 {
   \prop_get:NnNTF \g_@@_answers_prop {SyntaxScore} \l_@@_tmpa_tl
   {
-    \tl_gset_eq:NN \g_@@_output_tl {\tl_use:N \l_@@_tmpa_tl }
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
   }
   {
     \@@_syntax_scoring:n {#2}
-%    \prop_gput:NnV \g_@@_answers_prop {SyntaxScore} \g_@@_output_tl
+    \prop_gput:NnV \g_@@_answers_prop {SyntaxScore} \g_@@_output_tl
   }
   \IfBooleanTF {#1}
   {
@@ -3000,7 +3135,7 @@ solving the Advent of Code 2021}
 %
 %
 % \begin{macro}{
-% \Polymer
+% \Polymer, \LongPolymer
 % }
 %
 %    \begin{macrocode}
@@ -3152,6 +3287,21 @@ solving the Advent of Code 2021}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_parse_long_polymer:Nw #1#2->#3\q_stop
+{
+  \tl_set:Nn \l_@@_tmpb_tl {#2}
+  \tl_trim_spaces:N \l_@@_tmpb_tl
+  \tl_set:Nn \l_@@_tmpc_tl {#3}
+  \tl_trim_spaces:N \l_@@_tmpc_tl
+  \tl_set:Nx \l_@@_tmpd_tl {
+    {\tl_item:Nn \l_@@_tmpb_tl {1} \l_@@_tmpc_tl}
+    {\l_@@_tmpc_tl \tl_item:Nn \l_@@_tmpb_tl {2}}
+  }
+  \prop_put:NVV #1 \l_@@_tmpb_tl \l_@@_tmpd_tl
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \NewDocumentCommand \Polymer {m m}
 {
   \prop_get:NnNTF \g_@@_answers_prop {Polymerisation-#1} \l_@@_tmpa_tl
@@ -3160,14 +3310,748 @@ solving the Advent of Code 2021}
   }
   {
     \@@_polymerisation:nn {#1}{#2}
-%    \prop_gput:NnV \g_@@_answers_prop {Polymerisation-#1} \g_@@_output_tl
+    \prop_gput:NnV \g_@@_answers_prop {Polymerisation-#1} \g_@@_output_tl
   }
   \tl_use:N \g_@@_output_tl
   \@@_clear_outputs:
 }
 %    \end{macrocode}
+%
+%
+%
+% There are actually only \(10\) letters involved in the polymerisation sequence, meaning that there are \(100\) pairs.
+%
+% We need four integer arrays.
+% Two will hold the current state, with the second being for overflow, and the other two will hold the next state.
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_long_polymer_a_intarray {100}
+\intarray_new:Nn \g_@@_long_polymer_b_intarray {100}
+\intarray_new:Nn \g_@@_long_polymer_c_intarray {100}
+\intarray_new:Nn \g_@@_long_polymer_d_intarray {100}
+%    \end{macrocode}
+% The prop holds the index for each pair and the sequence is for the reverse look-up.
+% We also need a look-up for singletons.
+%    \begin{macrocode}
+\prop_new:N \g_@@_polymer_pairs_prop
+\seq_new:N \g_@@_polymer_pairs_seq
+\prop_new:N \g_@@_polymer_single_prop
+\tl_set:Nn \l_@@_tmpa_tl {BCFHKNOPSV}
+\int_zero:N \l_@@_tmpa_int
+\tl_map_inline:Nn \l_@@_tmpa_tl
+{
+  \tl_map_inline:Nn \l_@@_tmpa_tl
+  {
+    \int_incr:N \l_@@_tmpa_int
+    \prop_gput:NnV \g_@@_polymer_pairs_prop {#1##1} \l_@@_tmpa_int
+    \seq_gput_right:Nn \g_@@_polymer_pairs_seq {#1##1}
+  }
+}
+\int_zero:N \l_@@_tmpa_int
+\tl_map_inline:Nn \l_@@_tmpa_tl
+{
+  \int_incr:N \l_@@_tmpa_int
+  \prop_gput:NnV \g_@@_polymer_single_prop {#1} \l_@@_tmpa_int
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_long_polymerisation:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+%    \end{macrocode}
+% Read in the first line as the template, and the second is blank
+%    \begin{macrocode}
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpa_tl
+    \ior_get:NN \l_@@_tmpa_ior \l_@@_tmpb_tl
+%    \end{macrocode}
+% Now read in the replacement patterns
+%    \begin{macrocode}
+    \prop_clear:N \l_@@_tmpa_prop
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \@@_parse_long_polymer:Nw \l_@@_tmpa_prop ##1 \q_stop
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+% Split the template into pairs, remembering the last character.
+%    \begin{macrocode}
+    \intarray_gzero:N \g_@@_long_polymer_a_intarray
+    \intarray_gzero:N \g_@@_long_polymer_b_intarray
+    \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpa_tl}
+    \tl_set:Nx \l_@@_tmpa_tl {\tl_tail:N \l_@@_tmpa_tl}
+    \tl_map_inline:Nn \l_@@_tmpa_tl
+    {
+      \tl_put_right:Nn \l_@@_tmpb_tl {##1}
+      \prop_get:NVN \g_@@_polymer_pairs_prop \l_@@_tmpb_tl \l_@@_tmpc_tl
+      \intarray_gset:Nnn \g_@@_long_polymer_a_intarray
+      {
+        \l_@@_tmpc_tl
+      }
+      {
+        \intarray_item:Nn \g_@@_long_polymer_a_intarray
+        {
+          \l_@@_tmpc_tl
+        }
+        + 1
+      }
+      \tl_set:Nx \l_@@_tmpb_tl {\tl_tail:N \l_@@_tmpb_tl}
+    }
+    \tl_set_eq:NN \l_@@_tmpa_tl \l_@@_tmpb_tl
+%    \end{macrocode}
+% So now \texttt{tmpa} has the last character of the template.
+%    \begin{macrocode}
+    \prg_replicate:nn {#1}
+    {
+%    \end{macrocode}
+% Clear the integer arrays for the next state
+%    \begin{macrocode}
+      \intarray_gzero:N \g_@@_long_polymer_c_intarray
+      \intarray_gzero:N \g_@@_long_polymer_d_intarray
+%    \end{macrocode}
+% Iterate through the pairs
+%    \begin{macrocode}      
+      \int_step_inline:nn {100}
+      {
+%    \end{macrocode}
+% Get the pair corresponding to the current index
+%    \begin{macrocode}
+        \tl_set:Nx \l_@@_tmpb_tl {\seq_item:Nn \g_@@_polymer_pairs_seq {##1}}
+%    \end{macrocode}
+% Get the replacement pairs for this pair, if they exist
+%    \begin{macrocode}
+        \prop_get:NVNTF \l_@@_tmpa_prop \l_@@_tmpb_tl \l_@@_tmpc_tl
+        {
+%    \end{macrocode}
+% If they exist, the current pair produces the same quantity of each of its replacements.
+% Start by getting the indices for those replacements.
+%    \begin{macrocode}
+          \tl_set:Nx \l_@@_tmpe_tl {\tl_item:Nn \l_@@_tmpc_tl {1}}
+          \prop_get:NVN \g_@@_polymer_pairs_prop \l_@@_tmpe_tl \l_@@_tmpd_tl
+          \tl_set:Nx \l_@@_tmpe_tl {\tl_item:Nn \l_@@_tmpc_tl {2}}
+          \prop_get:NVN \g_@@_polymer_pairs_prop \l_@@_tmpe_tl \l_@@_tmpe_tl
+%    \end{macrocode}
+% Now, increment the replacement counts with the current count.
+%    \begin{macrocode}
+          \tl_map_inline:nn {{ca}{db}}
+          {
+            \tl_map_inline:nn {de}
+            {
+              \intarray_gset:cnn
+              {g_@@_long_polymer_ \tl_item:nn {####1}{1} _intarray}
+              {\tl_use:c {l_@@_tmp ########1 _tl}}
+              {
+                \intarray_item:cn
+                {g_@@_long_polymer_ \tl_item:nn {####1}{1} _intarray}
+                {\tl_use:c {l_@@_tmp ########1 _tl}}
+                +
+                \intarray_item:cn
+                {g_@@_long_polymer_ \tl_item:nn {####1}{2} _intarray}
+                {##1}
+              }
+            }
+          }
+%    \end{macrocode}
+% If there isn't a replacement pair for this one, simply add the old values to the new in the same position.
+%    \begin{macrocode}
+        }
+        {
+          \tl_map_inline:nn {{ca}{db}}
+          {
+            \intarray_gset:cnn
+            {g_@@_long_polymer_ \tl_item:nn {####1}{1} _intarray}
+            {##1}
+            {
+              \intarray_item:cn
+              {g_@@_long_polymer_ \tl_item:nn {####1}{1} _intarray}
+              {##1}
+              +
+              \intarray_item:cn
+              {g_@@_long_polymer_ \tl_item:nn {####1}{2} _intarray}
+              {##1}
+            }
+          }
+        }
+      }
+%    \end{macrocode}
+% Finally, check for overflows (hopefully, we haven't \emph{actually} produced any overflow otherwise we might need to do this earlier)
+%    \begin{macrocode}
+      \int_step_inline:nn {100}
+      {
+        \bool_while_do:nn
+        {
+          \int_compare_p:nNn
+          {\intarray_item:Nn \g_@@_long_polymer_c_intarray {##1}}
+          >
+          {\c_@@_overflow_int - 1}
+        }
+        {
+          \intarray_gset:Nnn \g_@@_long_polymer_c_intarray {##1}
+          {
+            \intarray_item:Nn \g_@@_long_polymer_c_intarray {##1}
+            -
+            \c_@@_overflow_int
+          }
+          \intarray_gset:Nnn \g_@@_long_polymer_d_intarray {##1}
+          {
+            \intarray_item:Nn \g_@@_long_polymer_d_intarray {##1}
+            +
+            1
+          }
+        }
+      }
+%    \end{macrocode}
+% You can't set one integer array equal to another
+%    \begin{macrocode}
+      \intarray_gzero:N \g_@@_long_polymer_a_intarray
+      \intarray_gzero:N \g_@@_long_polymer_b_intarray
+      \int_step_inline:nn {100}
+      {
+        \intarray_gset:Nnn \g_@@_long_polymer_a_intarray
+        {##1}
+        {
+          \intarray_item:Nn \g_@@_long_polymer_c_intarray
+          {##1}
+        }
+        \intarray_gset:Nnn \g_@@_long_polymer_b_intarray
+        {##1}
+        {
+          \intarray_item:Nn \g_@@_long_polymer_d_intarray
+          {##1}
+        }
+      }
+    }
+%    \end{macrocode}
+% Now that we've done the iterations, we need to count the number of each letter in the final string.
+% Each pair contributes two letters, but the end of each pair is the start of the next, so we add each pair's count to the overall count for its first letter only.
+% This does leave the very last letter of the string not counted, but that's the same as the last letter of the original string which is saved in the \texttt{tmpa} variable.
+%
+% We'll use the scratch \texttt{intarray}s to hold the counts.
+%    \begin{macrocode}
+    \intarray_gzero:N \g_@@_long_polymer_c_intarray
+    \intarray_gzero:N \g_@@_long_polymer_d_intarray
+%    \end{macrocode}
+% Set the count for the last character to \(1\)
+%    \begin{macrocode}
+    \prop_get:NVN \g_@@_polymer_single_prop \l_@@_tmpa_tl \l_@@_tmpb_tl
+    \intarray_gset:Nnn \g_@@_long_polymer_c_intarray {\l_@@_tmpb_tl} {1}
+%    \end{macrocode}
+% Iterate through the pairs
+%    \begin{macrocode}
+    \int_step_inline:nn {100}
+    {
+%    \end{macrocode}
+% Get the pair for the current index
+%    \begin{macrocode}
+      \tl_set:Nx \l_@@_tmpb_tl {\seq_item:Nn \g_@@_polymer_pairs_seq {##1}}
+%    \end{macrocode}
+% Just need its first character
+%    \begin{macrocode}
+      \tl_set:Nx \l_@@_tmpb_tl {\tl_head:N \l_@@_tmpb_tl}
+%    \end{macrocode}
+% Now get the index of that character
+%    \begin{macrocode}
+      \prop_get:NVN \g_@@_polymer_single_prop \l_@@_tmpb_tl \l_@@_tmpb_tl
+%    \end{macrocode}
+% Add the pair count to the character count
+%    \begin{macrocode}      
+      \intarray_gset:Nnn \g_@@_long_polymer_c_intarray
+      {
+        \l_@@_tmpb_tl
+      }
+      {
+        \intarray_item:Nn \g_@@_long_polymer_c_intarray {\l_@@_tmpb_tl}
+        +
+        \intarray_item:Nn \g_@@_long_polymer_a_intarray {##1}
+      }
+      \intarray_gset:Nnn \g_@@_long_polymer_d_intarray
+      {
+        \l_@@_tmpb_tl
+      }
+      {
+        \intarray_item:Nn \g_@@_long_polymer_d_intarray {\l_@@_tmpb_tl}
+        +
+        \intarray_item:Nn \g_@@_long_polymer_b_intarray {##1}
+      }
+    }
+%    \end{macrocode}
+%
+% Do the overflows
+%    \begin{macrocode}    
+    \int_step_inline:nn {10}
+    {
+      \bool_while_do:nn
+      {
+        \int_compare_p:nNn
+        {\intarray_item:Nn \g_@@_long_polymer_c_intarray {##1}}
+        >
+        {\c_@@_overflow_int - 1}
+      }
+      {
+        \intarray_gset:Nnn \g_@@_long_polymer_c_intarray {##1}
+        {
+          \intarray_item:Nn \g_@@_long_polymer_c_intarray {##1}
+          -
+          \c_@@_overflow_int
+        }
+        \intarray_gset:Nnn \g_@@_long_polymer_d_intarray {##1}
+        {
+          \intarray_item:Nn \g_@@_long_polymer_d_intarray {##1}
+          +
+          1
+        }
+      }
+    }
+%    \end{macrocode}
+% Now we need to find the biggest and smallest, so we convert to token lists and compare those lexicographically
+%    \begin{macrocode}
+    \seq_clear:N \l_@@_tmpa_seq
+    \int_zero:N \l_@@_tmpc_int
+    \int_step_inline:nn {10}
+    {
+      \int_set:Nn \l_@@_tmpa_int {\intarray_item:Nn \g_@@_long_polymer_c_intarray {##1}}
+      \int_set:Nn \l_@@_tmpb_int {\intarray_item:Nn \g_@@_long_polymer_d_intarray {##1}}
+      \double_int_to_tl:NNN \l_@@_tmpc_tl \l_@@_tmpb_int \l_@@_tmpa_int
+      \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpc_tl
+      \int_set:Nn \l_@@_tmpc_int {\int_max:nn {\l_@@_tmpc_int} {\tl_count:N \l_@@_tmpc_tl}}
+    }
+%    \end{macrocode}
+% The sequence has the numbers as token lists, but to compare them we need to ensure that they are all the same length.
+%    \begin{macrocode}
+    \seq_clear:N \l_@@_tmpb_seq
+    \seq_map_inline:Nn \l_@@_tmpa_seq
+    {
+      \tl_clear:N \l_@@_tmpa_tl
+      \prg_replicate:nn {\l_@@_tmpc_int - \tl_count:n {##1}}
+      {
+        \tl_put_right:Nn \l_@@_tmpa_tl {0}
+      }
+      \tl_put_right:Nn \l_@@_tmpa_tl {##1}
+      \seq_put_right:NV \l_@@_tmpb_seq \l_@@_tmpa_tl
+    }
+%    \end{macrocode}
+% Now, sort the list
+%    \begin{macrocode}
+    \seq_sort:Nn \l_@@_tmpb_seq
+    {
+      \str_compare:nNnTF { ##1 } > { ##2 }
+      { \sort_return_swapped: }
+      { \sort_return_same: }
+    }
+%    \end{macrocode}
+% Last minus first
+%    \begin{macrocode}
+    \seq_get_left:NN \l_@@_tmpb_seq \l_@@_tmpa_tl
+    \seq_get_right:NN \l_@@_tmpb_seq \l_@@_tmpb_tl
+%    \end{macrocode}
+% Subtraction (note that both are the same length), with a carry bit
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpb_int
+    \tl_clear:N \l_@@_tmpc_tl
+    \int_step_inline:nnnn {\l_@@_tmpc_int} {-1} {1}
+    {
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \tl_item:Nn \l_@@_tmpb_tl {##1}
+        -
+        \l_@@_tmpb_int
+        -
+        \tl_item:Nn \l_@@_tmpa_tl {##1}
+      }
+      \int_zero:N \l_@@_tmpb_int
+
+      \int_compare:nNnT {\l_@@_tmpa_int} < {0}
+      {
+        \int_add:Nn \l_@@_tmpa_int {10}
+        \int_set:Nn \l_@@_tmpb_int {1}
+      }
+      \tl_put_left:NV \l_@@_tmpc_tl \l_@@_tmpa_int
+    }
+
+    \tl_gset:Nx \g_@@_output_tl \l_@@_tmpc_tl
+
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \LongPolymer {m m}
+{
+  \prop_get:NnNTF \g_@@_answers_prop {LongPolymerisation-#1} \l_@@_tmpa_tl
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  {
+    \@@_long_polymerisation:nn {#1}{#2}
+    \prop_gput:NnV \g_@@_answers_prop {LongPolymerisation-#1} \g_@@_output_tl
+  }
+  \tl_use:N \g_@@_output_tl
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+%
 % \end{macro}
 %
+%
+%
+% \begin{macro}{
+% \ChitonRisk
+% }
+%
+%
+% The test has grid size \(10\), the real thing has grid size \(100\).
+%    \begin{macrocode}
+\int_const:Nn \c_@@_chiton_size_int {100}
+\intarray_new:Nn \g_@@_chiton_cells_intarray { (5 * \c_@@_chiton_size_int + 2) *  (5 * \c_@@_chiton_size_int + 2) }
+\intarray_new:Nn \g_@@_chiton_paths_intarray { (5 * \c_@@_chiton_size_int + 2) *  (5 * \c_@@_chiton_size_int + 2) }
+\cs_new_protected_nopar:Npn \@@_chiton_risk:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \intarray_gzero:N \g_@@_chiton_cells_intarray
+    \intarray_gzero:N \g_@@_chiton_paths_intarray
+%    \end{macrocode}
+% Initialise the paths array with maximal risk
+%    \begin{macrocode}
+    \int_step_inline:nn { (#1 * \c_@@_chiton_size_int + 2) * (#1 * \c_@@_chiton_size_int + 2) }
+    {
+      \intarray_gset:Nnn \g_@@_chiton_paths_intarray {##1} {#1 * #1 * \c_@@_chiton_size_int * \c_@@_chiton_size_int * 10}
+    }
+%    \end{macrocode}
+% We have a border around the grid so that we don't have to have special code for the edges of the real grid.
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpa_int {#1 * \c_@@_chiton_size_int + 2}
+%    \end{macrocode}
+% Now read in the costs from the file.
+%    \begin{macrocode}
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \int_incr:N \l_@@_tmpa_int
+      \int_zero:N \l_@@_tmpb_int
+      \prg_replicate:nn {#1}
+      {
+        \tl_map_inline:nn {##1}
+        {
+          \int_incr:N \l_@@_tmpa_int
+          \int_step_inline:nn {#1}
+          {
+            \intarray_gset:Nnn \g_@@_chiton_cells_intarray
+            {\l_@@_tmpa_int + (########1 - 1) * \c_@@_chiton_size_int * (#1 * \c_@@_chiton_size_int + 2)}
+            { \int_mod:nn {####1 - 1 + \l_@@_tmpb_int + (########1 - 1)}{9} + 1}
+          }
+        }
+        \int_incr:N \l_@@_tmpb_int
+      }
+      \int_incr:N \l_@@_tmpa_int
+    }
+%    \end{macrocode}
+% Close the file
+%    \begin{macrocode}
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%    \end{macrocode}
+% Set the path length of the start cell to \(0\).
+%    \begin{macrocode}
+    \intarray_gset:Nnn \g_@@_chiton_paths_intarray{ #1 * \c_@@_chiton_size_int + 4 } {0}
+%    \end{macrocode}
+% Run the iteration.
+% When a cell is updated, we add its neighbours to the list of cells to consider on the next iteration.
+% Since we start by setting cell \((0,0)\), we need to start with cells \((1,0)\) and \((0,1)\).
+%    \begin{macrocode}
+    \seq_clear:N \l_@@_tmpa_seq
+    \seq_put_right:Nn \l_@@_tmpa_seq { {1} {0} }
+    \seq_put_right:Nn \l_@@_tmpa_seq { {0} {1} }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+    \bool_until_do:nn
+    {
+      \seq_if_empty_p:N \l_@@_tmpa_seq
+    }
+    {
+%    \end{macrocode}
+% Get the next coordinate to consider
+%    \begin{macrocode}
+      \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+%    \end{macrocode}
+% Convert to an array index
+%    \begin{macrocode}
+      \int_set:Nn \l_@@_tmpb_int
+      {
+        (\tl_item:Nn \l_@@_tmpa_tl {1} + 2)
+        +
+        (\tl_item:Nn \l_@@_tmpa_tl {2} + 1)
+        *
+        (#1 * \c_@@_chiton_size_int + 2)
+      }
+%    \end{macrocode}
+% Compare the path value of each cell to the minimum of the path value of its four neighbours plus its own cost.
+%
+% Start by getting the minimum cost to one of the neighbours.
+%    \begin{macrocode}
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - 1}
+      }
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \int_min:nn {\l_@@_tmpa_int}
+        {
+          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + 1}
+        }
+      }
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \int_min:nn {\l_@@_tmpa_int}
+        {
+          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + (#1 * \c_@@_chiton_size_int + 2)}
+        }
+      }
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \int_min:nn {\l_@@_tmpa_int}
+        {
+          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - (#1 * \c_@@_chiton_size_int + 2)}
+        }
+      }
+%    \end{macrocode}
+% Now add the cost of moving to the current cell
+%    \begin{macrocode}
+      \int_add:Nn \l_@@_tmpa_int
+      {
+        \intarray_item:Nn \g_@@_chiton_cells_intarray {\l_@@_tmpb_int}
+      }
+%    \end{macrocode}
+% Compare that with the current path value
+%    \begin{macrocode}
+      \int_compare:nNnT
+      {
+        \l_@@_tmpa_int
+      }
+      <
+      {
+        \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int}
+      }
+      {
+%    \end{macrocode}
+% Neighbour value is smaller, so update and add the neighbours to the sequence of coordinates to consider.
+%    \begin{macrocode}
+        \intarray_gset:Nnn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int} {\l_@@_tmpa_int}
+%    \end{macrocode}
+% 
+% Test to see if the neighbouring coordinates are on the grid, and if they aren't already in the sequence.
+%
+% Left neighbour.
+%    \begin{macrocode}
+        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {1}} > {0}
+        {
+          \tl_set:Nx \l_@@_tmpb_tl
+          {
+            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {1} - 1}}
+            {\tl_item:Nn \l_@@_tmpa_tl {2}}
+          }
+          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
+          {
+            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
+          }
+        }
+%    \end{macrocode}
+% Right neighbour.
+%    \begin{macrocode}
+        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {1}} < {#1 * \c_@@_chiton_size_int - 1}
+        {
+          \tl_set:Nx \l_@@_tmpb_tl
+          {
+            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {1} + 1}}
+            {\tl_item:Nn \l_@@_tmpa_tl {2}}
+          }
+          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
+          {
+            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
+          }
+        }
+%    \end{macrocode}
+% Above neighbour.
+%    \begin{macrocode}
+        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {2}} > {0}
+        {
+          \tl_set:Nx \l_@@_tmpb_tl
+          {
+            {\tl_item:Nn \l_@@_tmpa_tl {1}}
+            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {2} - 1}}
+          }
+          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
+          {
+            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
+          }
+        }
+%    \end{macrocode}
+% Below neighbour.
+%    \begin{macrocode}
+        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {2}} < {#1 * \c_@@_chiton_size_int - 1}
+        {
+          \tl_set:Nx \l_@@_tmpb_tl
+          {
+            {\tl_item:Nn \l_@@_tmpa_tl {1}}
+            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {2} + 1}}
+          }
+          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
+          {
+            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
+          }
+        }
+      }
+%    \end{macrocde}
+% And around we go again.
+%    \begin{macrocode}
+    }
+%    \end{macrocode}
+% Once we're done, get the value at the bottom-right.
+%    \begin{macrocode}
+    \int_gset:Nn \g_@@_output_int
+    {
+      \intarray_item:Nn \g_@@_chiton_paths_intarray
+      {
+        (#1 * \c_@@_chiton_size_int + 2) * (#1 * \c_@@_chiton_size_int + 1) - 1
+      }
+    }
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+\cs_generate_variant:Nn \@@_chiton_risk:nn {Vn}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \ChitonRisk {s m}
+{
+  \int_zero:N \l_@@_tmpa_int
+  \IfBooleanTF {#1}
+  {
+    \int_set:Nn \l_@@_tmpa_int {1}
+  }
+  {
+    \int_set:Nn \l_@@_tmpa_int {5}
+  }
+  \tl_set:Nx \l_@@_tmpb_tl {ChitonRisk-\int_use:N \l_@@_tmpa_int}
+  \prop_get:NVNTF \g_@@_answers_prop \l_@@_tmpb_tl \l_@@_tmpa_tl
+  {
+    \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
+  }
+  {
+    \@@_chiton_risk:Vn \l_@@_tmpa_int {#2}
+    \prop_gput:NVV \g_@@_answers_prop \l_@@_tmpb_tl \g_@@_output_int
+  }
+  \int_use:N \g_@@_output_int
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+% \TrickShot
+% }
+%
+%
+% Bit pointless reading the file for this one, so we pass the parameters straight in.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_trick_shot:nnnn #1#2#3#4
+{
+  \group_begin:
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  \seq_clear:N \l_@@_tmpa_seq
+  \int_step_inline:nn {17}
+  {
+    \int_step_inline:nnn 
+    {
+      \fp_to_int:n {ceil(#1/##1 + (##1-1)/2)}
+    }
+    {
+      \fp_to_int:n {floor(#2/##1 + (##1-1)/2)}
+    }
+    {
+      \int_step_inline:nnn 
+      {
+        \fp_to_int:n {ceil(#3/##1 + (##1-1)/2)}
+      }
+      {
+        \fp_to_int:n {floor(#4/##1 + (##1-1)/2)}
+      }
+      {
+        \seq_put_right:Nn \l_@@_tmpa_seq { {####1} {########1} }
+      }
+    }
+  }
+  \int_step_inline:nnn {18} {296}
+  {
+    \int_step_inline:nnn {17} {18}
+    {
+      \int_step_inline:nnn 
+      {
+        \fp_to_int:n {ceil(#3/##1 + (##1-1)/2)}
+      }
+      {
+        \fp_to_int:n {floor(#4/##1 + (##1-1)/2)}
+      }
+      {
+        \seq_put_right:Nn \l_@@_tmpa_seq { {####1} {########1} }
+      }
+    }
+  }
+  \seq_remove_duplicates:N \l_@@_tmpa_seq
+%  \seq_show:N \l_@@_tmpa_seq
+%  \seq_map_inline:Nn \l_@@_tmpa_seq
+%  {
+%    \((\tl_item:nn {##1} {1}, \tl_item:nn {##1} {2})\),~
+%  }
+  \int_gset:Nn \g_@@_output_int {\seq_count:N \l_@@_tmpa_seq}
+  \group_end:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \TrickShot {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \@@_check_answer:nnn {int} {TrickShotHeight}
+    {\int_gset:Nn \g_@@_output_int {147*(147+1)/2}}
+  }
+  {
+    \@@_check_answer:nnn {int} {TrickShot}
+    {
+      \@@_trick_shot:nnnn {139}{187}{-148}{-89}
+    }
+  }
+  \int_use:N \g_@@_output_int
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
 %
 %
 % \iffalse
