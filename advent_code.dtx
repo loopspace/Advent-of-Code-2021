@@ -64,6 +64,7 @@ and the derived files            advent.ins,
 %<*driver>
 \documentclass[full]{l3doc}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{fontspec}
 \usepackage{unicode-math}
 \setmainfont{TeX Gyre Pagella}
@@ -152,14 +153,17 @@ and the derived files            advent.ins,
 % 
 % \section{Introduction}
 %
+% 
+% 
+%
 % \section{Day 01}
 %
 % \begin{function}{\CountIncreases}
-%
 % For this, we take advantage of a useful thing with the rolling averages.
 % If the first four terms are \(a\), \(b\), \(c\), and \(d\) then the first rolling average is \(a + b + c\) and the second is \(b + c + d\), so when comparing these averages it is enough to compare \(a\) with \(d\).
 % So we store \(k\) items in a sequence and then compare the next item with the first term of that sequence.
 % By then putting that next item on the end of the sequence and removing the first, so that it always stores the most recent \(k\) terms in the main list, we can iterate over the whole list quite efficiently.
+% \end{function}
 %
 % \begin{enumerate}
 % \item There are
@@ -169,14 +173,13 @@ and the derived files            advent.ins,
 % \CountIncreases[3]{Day01}
 % increases in the \(3\)--item rolling averages of the depths.
 % \end{enumerate}
-% \end{function}
 %
 % \section{Day 02}
 %
 % \begin{function}{\NavigateSub}
-%
 % For the second task, we can reuse the code since the \Verb!Depth! of the first part now becomes the \Verb!Aim! of the second.
 % So it is just a matter of adding the extra counter to the main code and then selecting the right outputs for the user level command.
+% \end{function}
 %
 % \begin{enumerate}
 % \item
@@ -184,18 +187,17 @@ and the derived files            advent.ins,
 % \item
 % \NavigateSub{Day02}
 % \end{enumerate}
-% \end{function}
 %
 % \section{Day 03}
 %
 % \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
-%
 % I didn't originally see how to directly use my code from the first part in solving the second.
 % Eventually, I hit on the idea of iterating through the list of data with a filter and figuring out the frequency of each bit for those which match the filter.
 % For the first part, the filter is just ``allow everything'' but for the second then we gradually build up a prefix to match against.
 % The \(\mathrm{CO}_2\) count proved slightly tricky due to the condition that once we have only a single match then we return that.
 % With the \(\mathrm{O}_2\) count then we can continue looking for the most frequent bit value even when there's only one left.
 % But with the \(\mathrm{CO}_2\) count then we need to flip the behaviour when there's only one left.
+% \end{function}
 %
 % \begin{enumerate}
 % \item
@@ -203,16 +205,15 @@ and the derived files            advent.ins,
 % \item
 % \CalculateRatesOCO{Day03}
 % \end{enumerate}
-% \end{function}
 %
 %
 % \section{Day 04}
 %
 % \begin{function}{\BingoCards}
-%
 % The idea of the code here is to convert a bingo card into a \texttt{prop} with keys the numbers on the card and values their positions.
 % When running through the called numbers, we can use this prop to figure which row and column each number belongs to.
 % Then keeping a count of how many in each row and column have been seen means that we can tell when a card is ``won''.
+% \end{function}
 %
 % \begin{enumerate}
 % \item First bingo card score:
@@ -220,7 +221,6 @@ and the derived files            advent.ins,
 % \item Last bingo card score:
 % \BingoCards*{Day04}
 % \end{enumerate}
-% \end{function}
 %
 %
 % \section{Day 05}
@@ -229,6 +229,7 @@ and the derived files            advent.ins,
 %
 % With the grid vents, we just iterate over the lines and keep count.
 % As the grid is \(1000 \times 1000\), we use an \texttt{intarray} to keep track of it (technically, a linearised version of it).
+% \end{function}
 %
 % \begin{enumerate}
 % \item There are
@@ -238,7 +239,6 @@ and the derived files            advent.ins,
 % \GridVents{Day05}
 % points where horizontal, vertical, or diagonal lines overlap.
 % \end{enumerate}
-% \end{function}
 %
 %
 % \section{Day 06}
@@ -249,6 +249,7 @@ and the derived files            advent.ins,
 % To cope with it, we need to effectively use double integer arithmetic.
 % However, we don't get anywhere near the maximum double limit so we implement the overflow at \(100000000\).
 % This means that we can do the overflow \emph{after} the arithmetic since it won't actually overflow, and reconstructing the number for display purposes is simple.
+% \end{function}
 %
 % \begin{enumerate}
 % \item There are
@@ -258,10 +259,10 @@ and the derived files            advent.ins,
 % \LanternFish{256}{Day06}
 % after \(256\) days.
 % \end{enumerate}
-% \end{function}
 %
 % \section{Day 07}
 %
+% \begin{function}{\CrabLine}
 % I cheated slightly here.
 % The position that minimises the cost in the first version is the median, so we just calculate that and use it to calculate the fuel cost.
 % In the second, the fuel cost is calculated using triangular numbers which are almost squares.
@@ -270,21 +271,21 @@ and the derived files            advent.ins,
 % Or rather, from the rounded mean.
 % That didn't give the right answer so I then tried rounding the mean the other way and that did work.
 % So I didn't technically work out which one minimised it in the code.
+% \end{function}
 %
-% \begin{function}{\CrabLine}
 % \begin{enumerate}
 % \item The cheapest fuel cost is
 % \CrabLine*{Day07}
 % \item The cheapest fuel cost is
 % \CrabLine{Day07}
 % \end{enumerate}
-% \end{function}
 %
 % \section{Day 08}
 %
 % \begin{function}{\DigitScramble,\DigitUnScramble}
 %
 % For the first digit scramble, as the numbers are uniquely identified by the lengths of the segments used then it is simply a matter of counting terms of those lengths.
+% \end{function}
 %
 % I'm quite pleased with my solution to the second part.
 % Each segment is used a set number of times in the ten digits and that can be used to figure out which number is which.
@@ -299,16 +300,15 @@ and the derived files            advent.ins,
 % \item The sum of all the unknown numbers is
 % \DigitUnScramble{Day08}.
 % \end{enumerate}
-% \end{function}
 %
 %
 %
 % \section{Day 09}
 %
 % \begin{function}{\SmokeBasin,\BasinSize}
-%
 % To make the code a bit simpler, I effectively put a border of \(10\)s around the edge of the grid of numbers.
 % This meant that I didn't have to check for edges and corners differently to the rest.
+% \end{function}
 %
 % I could think of a few algorithms for the second part.
 % One of the paradigms I'm finding when programming in \LaTeX3 is that the time cost has to get quite high before I will switch out a simple inefficient algorithm for a more complicated but efficient one.
@@ -332,13 +332,12 @@ and the derived files            advent.ins,
 % \item The sum of the risk levels is \SmokeBasin{Day09}.
 % \item The product of the sizes of the largest basins is \BasinSize{Day09}.
 % \end{enumerate}
-% \end{function}
 %
 % \section{Day 10}
 %
 % \begin{function}{\SyntaxScore}
-%
 % Given that \Verb!{! and \Verb!}! are special characters in \TeX, I thought this would be a good example to get to grips with the \texttt{str} data type.
+% \end{function}
 %
 % This one should have been quite quick, since \LaTeX3 has quite a good set of string manipulation routines.
 % However, overflow in integer arithmetic caused issues again.
@@ -349,7 +348,6 @@ and the derived files            advent.ins,
 % \item The syntax score for corrupted lines is \SyntaxScore*{Day10}.
 % \item The syntax score for incomplete lines is \SyntaxScore{Day10}.
 % \end{enumerate}
-% \end{function}
 %
 %
 %
@@ -372,6 +370,7 @@ and the derived files            advent.ins,
 % Macro-expansion is well-suited to recursion, so there weren't too many issues with this one.
 % I avoided groupings in the recursion as I didn't know how long the paths would get (I'm pretty sure that \TeX\ could handle it, but thought I'd see if I could avoid it) which meant that I needed to ensure that no temporary variables were used either side of a recursion.
 % Fortunately, \Verb!\exp_args! and its variants handled the only step where I need to worry.
+% \end{function}
 %
 % To handle the second version, I set a parameter to be used to mark when a small cave had been visited which could be either \(1\) or \(2\).
 % In the easy version, this was set at \(2\) to indicate that every small cave maxed out straight away.
@@ -386,7 +385,6 @@ and the derived files            advent.ins,
 % \item There are \CavePath*{Day12} paths through the system visiting small caves at most once
 % \item There are \CavePath{Day12} paths through the system visiting small caves at most twice
 % \end{enumerate}
-% \end{function}
 %
 %
 %
@@ -395,6 +393,7 @@ and the derived files            advent.ins,
 % \begin{function}{\FoldPaper}
 % The fold lines are ``in half'' at each step, so it's really just a matter of figuring out the final position of each dot.
 % Also, the \(x\) and \(y\) coordinates can be worked out separately.
+% \end{function}
 % 
 % The \(x\)--coordinates end up between \(0\) and \(39\), and there is a one unit separation between the intervals.
 % So we need to work out the interval that a point lies in and then fold that down on to \([0,39]\).
@@ -409,13 +408,13 @@ and the derived files            advent.ins,
 %
 % \FoldPaper{40}{6}{Day13}
 % \end{enumerate}
-% \end{function}
 %
 %
 % \section{Day 14}
 %
 % \begin{function}{\Polymer,\LongPolymer}
 % For the first task, I did this the naive way: starting with the original list and then applying the replacements \(10\) times over, then sorting the resulting list, splitting it into sections of the same letter, sorting them by length, and finding the difference between the lengths of the longest and shortest.
+% \end{function}
 %
 % For the second, I figured that arithmetic overflow would become an issue, so I redesigned the parts that require arithmetic.
 % Instead of sorting by \emph{length}, I sorted by \emph{inclusion} (minor point: so when splitting into sections of the same letter I then replaced that letter by an \texttt{X} so that all the substrings were of the same letter and only differed by length), and instead of doing \emph{subtraction}, I did \emph{exclusion}.
@@ -436,16 +435,15 @@ and the derived files            advent.ins,
 % \item The difference between the most common and least common elements in the polymer after \(10\) iterations is \Polymer{10}{Day14}.
 % \item The difference between the most common and least common elements in the polymer after \(40\) iterations is \LongPolymer{40}{Day14}.
 % \end{enumerate}
-% \end{function}
 %
 %
 %
 % \section{Day 15}
 %
 % \begin{function}{\ChitonRisk}
-%
 % My algorithm for this depends on the fact that if a path of lowest risk from cell \(A\) to cell \(B\) passes through cell \(C\), then its subpaths from \(A\) to \(C\) and from \(C\) to \(B\) must also be of lowest risk for their start and end points.
 % Also, the lowest risk path to a cell \(D\) must pass through one of its immediate neighbours, so the lowest risk to cell \(D\) must be equal to the minimum risk to its neighbours plus the cost of entering cell \(D\).
+% \end{function}
 %
 % So we start by giving each cell a sufficiently high initial path risk, guaranteed not to be the lowest risk to that cell, and then iterate over each cell comparing its current risk with the risk from its neighbours.
 % This will eventually assign each cell with its lowest path risk.
@@ -453,11 +451,13 @@ and the derived files            advent.ins,
 % With the bigger grid for the second task then the naive algorithm that repeated iterates over the entire grid until it stabilises runs too slow.
 % A simple optimisation, in which we keep track of which cells have actually been updated so that we only need to consider their immediate neighbours, also runs too slow.
 %
+% Rather than run all of the iterations of the algorithm in a single compilation, I export it to a file which is read back in on the next run.
+% This takes advantage of the fact that typically a \LaTeX\ document is compiled many, many times so each time it runs another iteration of this algorithm.
+%
 % \begin{enumerate}
 % \item On the single grid, the lowest total risk is \ChitonRisk*{Day15}.
-% ^^A\item On the multiple grid, the lowest total risk is \ChitonRisk{Day15}.
+% \item On the multiple grid, the lowest total risk is \ChitonRisk{Day15}.
 % \end{enumerate}
-% \end{function}
 %
 %
 % \section{Day 16}
@@ -475,6 +475,7 @@ and the derived files            advent.ins,
 % These two together means that our ideal initial vertical velocity is such that it is as big as possible while ensuring that it doesn't overshoot the target area when it descends below the horizon.
 % So when it is at \(0\) travelling back down, its velocity should be \(-148\).
 % This means that its initial vertical velocity should be \(147\) and it will travel \(\frac12 \times 147 \times (147 + 1) = \TrickShot*{Day17}\) to its highest point.
+% \end{function}
 %
 % The only thing to check is that there is a horizontal velocity that means it will be in the target area when it descends.
 % This is straightforward, as once the probe reaches \(0\) velocity horizontally then it stays there (horizontally), so we just need to find a horizontal velocity so that when it stops moving horizontally then it is in the target zone, and that this happens before it reaches it vertically.
@@ -524,11 +525,118 @@ and the derived files            advent.ins,
 % \item The maximum height of a trick shot is \TrickShot*{Day17}.
 % \item The number of possible launch velocities is \TrickShot{Day17}.
 % \end{enumerate}
+%
+%
+% \section{Day 20}
+%
+% \begin{function}{\ImageEnhance}
+% The main irritation here was linearising the grid and dealing with the edges.
+% Rather than simply set the border appropriately, I went for testing whether a cell was on the border when figuring out the nine neighbouring cells.
+% This meant keeping track of the ``at infinity'' condition of the cells (since it swapped each iteration) so that cells that were outside the actual array could be set to this ``at infinity'' value.
+% I suspect that setting the border ``by hand'' and then iterating over only the interior cells would have been more efficient.
 % \end{function}
 %
+% \begin{enumerate}
+% \item There are \ImageEnhance*{Day20} pixels lit after \(2\) enhancements.
+% \item There are \ImageEnhance{Day20} pixels lit after \(50\) enhancements.
+% \end{enumerate}
+%
+%
+% \section{Day 21}
+%
+% \begin{function}{\DiracDiceI, \DiracDiceII}
+% For the simpler version, there are quite a few mathematical observations that simplify the process.
+% As the track has \(10\) spaces, for the position and dice rolls then we can work \(\mod 10\).
+% The first triple is \((1,2,3)\) which adds to \(6\), then the next is \((4,5,6)\) which adds to \(15\) but this is \(5 \mod 10\).
+% So each turn, the dice total is actually one less than it was before.
+% (There is a mild complication which is that the positions run from \(1\) to \(10\) rather than \(0\) to \(9\) but this just needs noting.) 
+% \end{function}
+%
+% With the second task, with \(3\) rolls of the dice there are \(27\) possible outcomes for the dice, but as we're adding the totals to find the player's input then the possible outcomes run from \(3\) to \(9\) with the following counts:
+%
+% \begin{tabular}{lrrrrrrr}
+%      Total & \(3\) & \(4\) & \(5\) & \(6\) & \(7\) & \(8\) & \(9\) \\
+% Frequencey & \(1\) & \(3\) & \(6\) & \(7\) & \(6\) & \(3\) & \(1\)
+% \end{tabular}
+%
+% The outcome of a game only depends on the totals, but the number of times that the game runs depends on the frequencies.
+% A player's progress depends only on their dice rolls, so we can work out how long it takes for a player to reach \(21\) and how many universes that length it achieved in.
+%
+% Calculating how long it takes a player to reach \(21\) is not too difficult, though calculating both in a single \TeX\ run seems to exhaust \TeX's capacity so I used some caching to save the results from previous runs.
+%
+% Once all these counts have been figured out, it remains to work out who would win in a match.
+% For example, in \(4608\) matches Player \(1\) wins in \(3\) turns.
+% This beats every possible sequence for Player \(2\) (if we're in a universe where Player \(2\) also takes \(3\) turns to get to \(21\) then Player \(1\) wins as Player \(1\) goes first).
+% So we multiply the \(4608\) by all the possible universes for Player \(2\).
+%
+% However, our count of universes assumes that Player \(2\) keeps playing beyond when they lost to Player \(1\).
+% But the description of the game says that it stops once one player has won, so we need to collapse the universes.
+%
+% To see how this works, consider the other end of the spectrum.
+% The longest length of turn for Player \(2\) is \(10\).
+% All those turns came from a turn of length \(9\) that didn't end (so the running total was less than \(21\)) followed by a single set of dice rolls.
+% That single set of dice rolls produced \(27\) different universes, so as there were \(243\) turns of length \(10\), they must have come from \(\frac{243}{27} = 9\) turns of length \(9\).
+% So when Player \(2\) played their \(9\)th turn, they created \(711603 + 9\) universes, of which \(711603\) caused their total to reach \(21\) and \(9\) which didn't.
+% Now if Player \(1\) won on the \(9\)th turn, Player \(2\) didn't take their turn and so those universes weren't created, but we can use that fact to figure out how many universes there were to create them from by dividing by \(27\).
+% That is to say, the cruical number is how many universes there were for Player \(2\) prior to them taking their \(9\)th turn, which is:
+%
+% \[
+% \frac{711603 + 9}{27}
+% \]
+%
+% Using this idea, we can recursively calculate the needed amounts: ``Before taking their \(k\)th turn, how many universes has Player \(k\) created?''.
+% 
+% Once these are computed, the count of universes in which each player wins is straightforward.
+% For each turn number, we multiply the number of universes in which Player \(1\) wins at that turn by the number of universes which Player \(2\) has created prior to that turn.
+% Then we add this up for each turn and this gives the number of universes in which Player \(1\) wins.
+%
+% The calculation for Player \(2\) is similar, except that when Player \(2\) wins then Player \(1\) has already had their turn, so we need to take the next value in the list.
+%
+% \begin{enumerate}
+% \item The first game leads to a product of \DiracDiceI{Day21}.
+% \item The quantum game leads to \DiracDiceII{Day21}.
+% \end{enumerate}
+%
+%
+% \section{Day 22}
+%
+% \begin{function}{\Reboot}
+% My initial attempt to solve this was way too slow, so I'm taking a more mathematical approach to see if that improves things.
+% \end{function}
+%
+% If we consider two cuboids, say \(C_1\) and \(C_2\), and both contain instructions to turn ``on'' all the cubes then set of cubes that are now on is \(C_1 \cup C_2\).
+% The size of this is given by the ``inclusion--exclusion'' formula:
+%
+% \[
+% | C_1 \cup C_2 | = |C_1| + |C_2| - |C_1 \cap C_2|
+% \]
+%
+% This formula generalises to multiple unions:
+%
+% \[
+% | \bigcup_i C_i | = \sum_i |C_i| - \sum_{i < j} |C_i \cap C_j| + \sum_{i < j < k} |C_i \cap C_j \cap C_k| - \dots
+% \]
+%
+% The advantage of using this formula is that the intersections are again cuboids.
+% So everything on the right-hand side is a cuboid and so can be described by giving the extents of the three coordinates.
+% Finding intersections of cuboids is quite simple as well, for each direction  take the maximum of the lower bounds and the minimum of the upper bounds.
+%
+% So if we already have a set of cuboids, \(C_i\), and corresponding signs \(\sigma_i\), then when adding in a new set of ``on'' instructions, say \(C\), we take all the existing \((C_i, \sigma_i)\), add in \((C,1)\), and then add in all the intersections \((C \cap C_i, - \sigma_i)\).
+% This process does potentially double the number of cuboids so we ensure that if any are empty then we discard them straightaway.
+%
+% With an instruction to turn ``off'' the cubes in a cuboid then a similar treatment happens, but with the key difference that the new cuboid itself is not added.
+% If we added that cuboid then the ``inclusion--exclusion'' would ensure that the cubes in that cuboid counted as \(1\) so by not including that cuboid we ensure that its cubes count as \(0\).
+%
+% The primary issue with the second part is the overflow.
+% The arithmetic involves multiplying and then adding (or subtracting) and both of these could overflow (indeed, if the multiplication overflows then the addition almost certainly will as well).
+%
+% \begin{enumerate}
+% \item There are \Reboot*{Day22} cubes left on in the \([-50,50]^3\) inner cube.
+% \item There are \Reboot{Day22} cubes left in total.
+% \end{enumerate}
 %
 % \StopEventually{}
-%
+% \end{document}
 % \section{Implementation}
 %
 % \iffalse
@@ -641,6 +749,9 @@ solving the Advent of Code 2021}
 \int_new:N \l_@@_tmpb_int
 \int_new:N \l_@@_tmpc_int
 \int_new:N \l_@@_tmpd_int
+\int_new:N \l_@@_tmpe_int
+\int_new:N \l_@@_tmpf_int
+\int_new:N \l_@@_tmpg_int
 
 \bool_new:N \l_@@_tmpa_bool
 \bool_new:N \l_@@_tmpb_bool
@@ -657,10 +768,22 @@ solving the Advent of Code 2021}
  { missing file }
  { File~ #1~ doesn't~ exist~ \msg_line_context:}
 
+\msg_new:nnn
+ { advent }
+ { Chiton Risk }
+ { Chiton~ Risk~ for~ #1~ updated~ \msg_line_context:}
+
+\msg_new:nnn
+ { advent }
+ { Dirac Dice }
+ { Dirac~ Dice~ data~ not~ generated~ for~ start~ #1~ \msg_line_context:}
+
 %    \end{macrocode}
 %
 % On occasion we run into arithmetic overflow.
 % To make life a little easier, we overflow at a power of \(10\).
+%
+% This works when we're doing addition.
 %    \begin{macrocode}
 \int_const:Nn \c_@@_overflow_int {100000000}
 \cs_new_protected_nopar:Npn \double_int_to_tl:NNN #1#2#3
@@ -673,6 +796,165 @@ solving the Advent of Code 2021}
       \tl_put_left:Nn #1 {0}
     }
     \tl_put_left:Nx #1 {\int_use:N #2}
+  }
+}
+%    \end{macrocode}
+%
+% When multiplying, we overflow at a smaller number.
+%    \begin{macrocode}
+\int_const:Nn \c_@@_overflow_mult_int {10000}
+\cs_new_protected_nopar:Npn \triple_int_to_tl:NNNN #1#2#3#4
+{
+  \tl_set:Nx #1 {\int_use:N #4}
+  \int_compare:nNnT {#3} > {0}
+  {
+    \prg_replicate:nn {4 - \tl_count:N #1}
+    {
+      \tl_put_left:Nn #1 {0}
+    }
+    \tl_put_left:Nx #1 {\int_use:N #3}
+  }
+  \int_compare:nNnT {#2} > {0}
+  {
+    \prg_replicate:nn {8 - \tl_count:N #1}
+    {
+      \tl_put_left:Nn #1 {0}
+    }
+    \tl_put_left:Nx #1 {\int_use:N #2}
+  }
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \bigint_new:N #1
+{
+  \intarray_new:Nn #1 {30}
+}
+\cs_new_protected_nopar:Npn \bigint_set:Nn #1#2
+{
+  \group_begin:
+  \intarray_gzero:N #1
+  \int_zero:N \l_@@_tmpa_int
+  \tl_set:Nn \l_@@_tmpa_tl {#2}
+  \tl_reverse:N \l_@@_tmpa_tl
+  \tl_map_inline:Nn \l_@@_tmpa_tl
+  {
+    \int_incr:N \l_@@_tmpa_int
+    \intarray_gset:Nnn #1 {\l_@@_tmpa_int} {##1}
+  }
+  \group_end:
+}
+\cs_generate_variant:Nn \bigint_set:Nn {NV}
+\cs_new_protected_nopar:Npn \bigint_add:NN #1#2
+{
+  \int_step_inline:nn {30}
+  {
+    \intarray_gset:Nnn #1 {##1}
+    {
+      \intarray_item:Nn #1 {##1}
+      +
+      \intarray_item:Nn #2 {##1}
+    }
+  }
+  \int_step_inline:nn {29}
+  {
+    \intarray_gset:Nnn #1 {##1+1}
+    {
+      \intarray_item:Nn #1 {##1+1}
+      +
+      \int_div_truncate:nn {\intarray_item:Nn #1 {##1}} {10}
+    }
+    \intarray_gset:Nnn #1 {##1}
+    {
+      \int_mod:nn {\intarray_item:Nn #1 {##1}} {10}
+    }
+  }
+}
+\cs_new_protected_nopar:Npn \bigint_sub:NN #1#2
+{
+  \int_step_inline:nn {30}
+  {
+    \intarray_gset:Nnn #1 {##1}
+    {
+      \intarray_item:Nn #1 {##1}
+      -
+      \intarray_item:Nn #2 {##1}
+    }
+  }
+  \int_step_inline:nn {29}
+  {
+    \int_compare:nNnT
+    {\intarray_item:Nn #1 {##1}}
+    <
+    {0}
+    {
+      \intarray_gset:Nnn #1 {##1+1}
+      {
+        \intarray_item:Nn #1 {##1+1} - 1
+      }
+      \intarray_gset:Nnn #1 {##1}
+      {
+        \intarray_item:Nn #1 {##1} + 10
+      }
+    }
+  }
+}
+\intarray_new:Nn \g_@@_bigint_mult_intarray {60}
+\cs_new_protected_nopar:Npn \bigint_mult:NN #1#2
+{
+  \intarray_gzero:N \g_@@_bigint_mult_intarray
+  \int_step_inline:nn {30}
+  {
+    \int_step_inline:nn {30}
+    {
+      \intarray_gset:Nnn \g_@@_bigint_mult_intarray {##1 + ####1 - 1}
+      {
+        \intarray_item:Nn \g_@@_bigint_mult_intarray {##1 + ####1 - 1}
+        +
+        (\intarray_item:Nn #1 {##1})
+        *
+        (\intarray_item:Nn #2 {####1})
+      }
+    }
+  }
+  \intarray_gzero:N #1
+  \int_step_inline:nn {29}
+  {
+    \intarray_gset:Nnn #1 {##1+1}
+    {
+      \int_div_truncate:nn {
+        \intarray_item:Nn #1 {##1}
+        +
+        \intarray_item:Nn \g_@@_bigint_mult_intarray {##1}
+      }
+      {10}
+    }
+    \intarray_gset:Nnn #1 {##1}
+    {
+      \int_mod:nn {
+        \intarray_item:Nn #1 {##1}
+        +
+        \intarray_item:Nn \g_@@_bigint_mult_intarray {##1}
+      }
+      {10}
+    }
+  }
+}
+\tl_const:Nn \c_@@_bigint_zero_tl {0}
+\cs_new_protected_nopar:Npn \bigint_to_tl:NN #1#2
+{
+  \tl_clear:N #1
+  \int_step_inline:nn {30}
+  {
+    \tl_put_left:Nx #1 {\intarray_item:Nn #2 {##1}}
+  }
+  \tl_set:Nx \l_@@_bigint_tmpa_tl {\tl_head:N #1}
+  \bool_while_do:nn {
+    \tl_if_eq_p:NN \l_@@_bigint_tmpa_tl \c_@@_bigint_zero_tl
+  }
+  {
+    \tl_set:Nx #1 {\tl_tail:N #1}
+    \tl_set:Nx \l_@@_bigint_tmpa_tl {\tl_head:N #1}
   }
 }
 %    \end{macrocode}
@@ -721,12 +1003,19 @@ solving the Advent of Code 2021}
 \tl_const:Nn \c_@@_seq_tl {seq}
 \tl_const:Nn \c_@@_bool_tl {bool}
 \tl_const:Nn \c_@@_prop_tl {prop}
+\bool_new:N \g_@@_regenerate_next_bool
 \cs_new_protected_nopar:Npn \@@_check_answer:nnn #1#2#3
 {
   \group_begin:
   \tl_set:Nn \l_@@_tmpb_tl {#1}
-  \prop_get:NnNTF \g_@@_answers_prop {#2} \l_@@_tmpa_tl
+  \bool_if:nTF
   {
+    !\g_@@_regenerate_next_bool
+    &&
+    \prop_if_in_p:Nn \g_@@_answers_prop {#2}
+  }
+  {
+    \prop_get:NnN \g_@@_answers_prop {#2} \l_@@_tmpa_tl
     \tl_case:Nn \l_@@_tmpb_tl
     {
       \c_@@_tl_tl {\tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl}
@@ -735,7 +1024,7 @@ solving the Advent of Code 2021}
     }
   }
   {
-    \iow_log:n {No~ solution~ found~ for~ #2,~ recalculating.}
+    \iow_log:n {Calculating~ solution~ for~ #2.}
     #3
     \tl_case:Nn \l_@@_tmpb_tl
     {
@@ -747,8 +1036,10 @@ solving the Advent of Code 2021}
       }
     }
   }
+  \bool_gset_false:N \g_@@_regenerate_next_bool
   \group_end:
 }
+\cs_generate_variant:Nn \@@_check_answer:nnn {nVn,nxn}
 %    \end{macrocode}
 %
 % \begin{macro}{
@@ -3719,26 +4010,45 @@ solving the Advent of Code 2021}
 {
   \group_begin:
 %    \end{macrocode}
-% Open the file and read in the data.
+% Boolean to see if anything actually happens on this iteration
 %    \begin{macrocode}
-  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
-  {
-    \intarray_gzero:N \g_@@_chiton_cells_intarray
-    \intarray_gzero:N \g_@@_chiton_paths_intarray
+  \bool_set_false:N \l_@@_tmpa_bool
 %    \end{macrocode}
-% Initialise the paths array with maximal risk
+% Initialise the arrays
+%    \begin{macrocode}
+  \intarray_gzero:N \g_@@_chiton_cells_intarray
+  \intarray_gzero:N \g_@@_chiton_paths_intarray
+%    \end{macrocode}
+% Initialise the paths array, try to read in from a previous run if it exists.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2-#1-risk-array.txt}
+  {
+    \int_zero:N \l_@@_tmpa_int
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \int_incr:N \l_@@_tmpa_int
+      \intarray_gset:Nnn \g_@@_chiton_paths_intarray {\l_@@_tmpa_int} {##1}
+    }
+    \ior_close:N \l_@@_tmpa_ior
+  }
+  {
+%    \end{macrocode}
+% If not, initialise with maximum risk
 %    \begin{macrocode}
     \int_step_inline:nn { (#1 * \c_@@_chiton_size_int + 2) * (#1 * \c_@@_chiton_size_int + 2) }
     {
       \intarray_gset:Nnn \g_@@_chiton_paths_intarray {##1} {#1 * #1 * \c_@@_chiton_size_int * \c_@@_chiton_size_int * 10}
     }
+  }
 %    \end{macrocode}
 % We have a border around the grid so that we don't have to have special code for the edges of the real grid.
 %    \begin{macrocode}
-    \int_set:Nn \l_@@_tmpa_int {#1 * \c_@@_chiton_size_int + 2}
+  \int_set:Nn \l_@@_tmpa_int {#1 * \c_@@_chiton_size_int + 2}
 %    \end{macrocode}
-% Now read in the costs from the file.
+% Open the file and read in the data.
 %    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
     \ior_map_inline:Nn \l_@@_tmpa_ior
     {
       \int_incr:N \l_@@_tmpa_int
@@ -3772,156 +4082,97 @@ solving the Advent of Code 2021}
     \intarray_gset:Nnn \g_@@_chiton_paths_intarray{ #1 * \c_@@_chiton_size_int + 4 } {0}
 %    \end{macrocode}
 % Run the iteration.
-% When a cell is updated, we add its neighbours to the list of cells to consider on the next iteration.
-% Since we start by setting cell \((0,0)\), we need to start with cells \((1,0)\) and \((0,1)\).
-%    \begin{macrocode}
-    \seq_clear:N \l_@@_tmpa_seq
-    \seq_put_right:Nn \l_@@_tmpa_seq { {1} {0} }
-    \seq_put_right:Nn \l_@@_tmpa_seq { {0} {1} }
-%    \end{macrocode}
 %
+% The full algorithm takes too long, so I'm guessing that the eventual shortest path doesn't ``double back'' on itself.
+% 
 %    \begin{macrocode}
-    \bool_until_do:nn
+    \int_step_inline:nnn {0} { #1 * \c_@@_chiton_size_int - 1 }
     {
-      \seq_if_empty_p:N \l_@@_tmpa_seq
-    }
-    {
-%    \end{macrocode}
-% Get the next coordinate to consider
-%    \begin{macrocode}
-      \seq_pop_left:NN \l_@@_tmpa_seq \l_@@_tmpa_tl
+      \int_step_inline:nnn {0} { #1 * \c_@@_chiton_size_int - 1 }
+      {
 %    \end{macrocode}
 % Convert to an array index
 %    \begin{macrocode}
-      \int_set:Nn \l_@@_tmpb_int
-      {
-        (\tl_item:Nn \l_@@_tmpa_tl {1} + 2)
-        +
-        (\tl_item:Nn \l_@@_tmpa_tl {2} + 1)
-        *
-        (#1 * \c_@@_chiton_size_int + 2)
-      }
+        \int_set:Nn \l_@@_tmpb_int
+        {
+          (##1 + 2)
+          +
+          (####1 + 1)
+          *
+          (#1 * \c_@@_chiton_size_int + 2)
+        }
 %    \end{macrocode}
 % Compare the path value of each cell to the minimum of the path value of its four neighbours plus its own cost.
 %
 % Start by getting the minimum cost to one of the neighbours.
 %    \begin{macrocode}
-      \int_set:Nn \l_@@_tmpa_int
-      {
-        \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - 1}
-      }
-      \int_set:Nn \l_@@_tmpa_int
-      {
-        \int_min:nn {\l_@@_tmpa_int}
+        \int_set:Nn \l_@@_tmpa_int
         {
-          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + 1}
+          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - 1}
         }
-      }
-      \int_set:Nn \l_@@_tmpa_int
-      {
-        \int_min:nn {\l_@@_tmpa_int}
+        \int_set:Nn \l_@@_tmpa_int
         {
-          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + (#1 * \c_@@_chiton_size_int + 2)}
+          \int_min:nn {\l_@@_tmpa_int}
+          {
+            \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + 1}
+          }
         }
-      }
-      \int_set:Nn \l_@@_tmpa_int
-      {
-        \int_min:nn {\l_@@_tmpa_int}
+        \int_set:Nn \l_@@_tmpa_int
         {
-          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - (#1 * \c_@@_chiton_size_int + 2)}
+          \int_min:nn {\l_@@_tmpa_int}
+          {
+            \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int + (#1 * \c_@@_chiton_size_int + 2)}
+          }
         }
-      }
+        \int_set:Nn \l_@@_tmpa_int
+        {
+          \int_min:nn {\l_@@_tmpa_int}
+          {
+            \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int - (#1 * \c_@@_chiton_size_int + 2)}
+          }
+        }
 %    \end{macrocode}
 % Now add the cost of moving to the current cell
 %    \begin{macrocode}
-      \int_add:Nn \l_@@_tmpa_int
-      {
-        \intarray_item:Nn \g_@@_chiton_cells_intarray {\l_@@_tmpb_int}
-      }
+        \int_add:Nn \l_@@_tmpa_int
+        {
+          \intarray_item:Nn \g_@@_chiton_cells_intarray {\l_@@_tmpb_int}
+        }
 %    \end{macrocode}
 % Compare that with the current path value
 %    \begin{macrocode}
-      \int_compare:nNnT
-      {
-        \l_@@_tmpa_int
-      }
-      <
-      {
-        \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int}
-      }
-      {
+        \int_compare:nNnT
+        {
+          \l_@@_tmpa_int
+        }
+        <
+        {
+          \intarray_item:Nn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int}
+        }
+        {
 %    \end{macrocode}
 % Neighbour value is smaller, so update and add the neighbours to the sequence of coordinates to consider.
 %    \begin{macrocode}
-        \intarray_gset:Nnn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int} {\l_@@_tmpa_int}
-%    \end{macrocode}
-% 
-% Test to see if the neighbouring coordinates are on the grid, and if they aren't already in the sequence.
-%
-% Left neighbour.
-%    \begin{macrocode}
-        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {1}} > {0}
-        {
-          \tl_set:Nx \l_@@_tmpb_tl
-          {
-            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {1} - 1}}
-            {\tl_item:Nn \l_@@_tmpa_tl {2}}
-          }
-          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
-          {
-            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
-          }
-        }
-%    \end{macrocode}
-% Right neighbour.
-%    \begin{macrocode}
-        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {1}} < {#1 * \c_@@_chiton_size_int - 1}
-        {
-          \tl_set:Nx \l_@@_tmpb_tl
-          {
-            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {1} + 1}}
-            {\tl_item:Nn \l_@@_tmpa_tl {2}}
-          }
-          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
-          {
-            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
-          }
-        }
-%    \end{macrocode}
-% Above neighbour.
-%    \begin{macrocode}
-        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {2}} > {0}
-        {
-          \tl_set:Nx \l_@@_tmpb_tl
-          {
-            {\tl_item:Nn \l_@@_tmpa_tl {1}}
-            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {2} - 1}}
-          }
-          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
-          {
-            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
-          }
-        }
-%    \end{macrocode}
-% Below neighbour.
-%    \begin{macrocode}
-        \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {2}} < {#1 * \c_@@_chiton_size_int - 1}
-        {
-          \tl_set:Nx \l_@@_tmpb_tl
-          {
-            {\tl_item:Nn \l_@@_tmpa_tl {1}}
-            {\int_eval:n {\tl_item:Nn \l_@@_tmpa_tl {2} + 1}}
-          }
-          \seq_if_in:NVF \l_@@_tmpa_seq \l_@@_tmpb_tl
-          {
-            \seq_put_right:NV \l_@@_tmpa_seq \l_@@_tmpb_tl
-          }
-        }
-      }
+          \intarray_gset:Nnn \g_@@_chiton_paths_intarray {\l_@@_tmpb_int} {\l_@@_tmpa_int}
+          \bool_set_true:N \l_@@_tmpa_bool
 %    \end{macrocde}
 % And around we go again.
 %    \begin{macrocode}
+        }
+      }
     }
+%    \end{macrocode}
+% Write out the array to a temporary file
+%    \begin{macrocode}
+    \iow_open:Nn \l_@@_tmpa_iow {#2-#1-risk-array.txt}
+    \int_step_inline:nn {\intarray_count:N \g_@@_chiton_paths_intarray}
+    {
+      \iow_now:Nx \l_@@_tmpa_iow
+      {
+        \intarray_item:Nn \g_@@_chiton_paths_intarray {##1}
+      }
+    }
+    \iow_close:N \l_@@_tmpa_iow
 %    \end{macrocode}
 % Once we're done, get the value at the bottom-right.
 %    \begin{macrocode}
@@ -3931,6 +4182,10 @@ solving the Advent of Code 2021}
       {
         (#1 * \c_@@_chiton_size_int + 2) * (#1 * \c_@@_chiton_size_int + 1) - 1
       }
+    }
+    \bool_if:NT \l_@@_tmpa_bool
+    {
+      \msg_info:nnn { advent } { Chiton Risk } {#1}
     }
   }
   {
@@ -3956,13 +4211,9 @@ solving the Advent of Code 2021}
     \int_set:Nn \l_@@_tmpa_int {5}
   }
   \tl_set:Nx \l_@@_tmpb_tl {ChitonRisk-\int_use:N \l_@@_tmpa_int}
-  \prop_get:NVNTF \g_@@_answers_prop \l_@@_tmpb_tl \l_@@_tmpa_tl
-  {
-    \int_gset:Nn \g_@@_output_int { \l_@@_tmpa_tl }
-  }
+  \@@_check_answer:nVn {int} \l_@@_tmpb_tl
   {
     \@@_chiton_risk:Vn \l_@@_tmpa_int {#2}
-    \prop_gput:NVV \g_@@_answers_prop \l_@@_tmpb_tl \g_@@_output_int
   }
   \int_use:N \g_@@_output_int
   \@@_clear_outputs:
@@ -4053,6 +4304,1258 @@ solving the Advent of Code 2021}
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{
+% \DiracDiceI, \DiracDiceII
+% }
+%
+% For this one, we'll simply pass the starting positions as the parameters.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_dirac_dice:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+%
+% Initialise the positions, the dice, and the scores.
+%    \begin{macrocode}
+  \int_set:Nn \l_@@_tmpa_int {#1}
+  \int_set:Nn \l_@@_tmpb_int {#2}
+  \int_set:Nn \l_@@_tmpc_int {7}
+  \int_zero:N \l_@@_tmpd_int
+  \int_zero:N \l_@@_tmpe_int
+  \int_zero:N \l_@@_tmpf_int
+%    \end{macrocode}
+%
+% Set a boolean for the loop
+%    \begin{macrocode}
+  \bool_set_true:N \l_@@_tmpa_bool
+  \bool_while_do:Nn \l_@@_tmpa_bool
+  {
+%    \end{macrocode}
+% Player \(1\) turn.
+%
+% Increment the dice rolls (safer to add \(9\) than subtract \(1\)) and the number of rolls.
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpc_int { \int_mod:nn {\l_@@_tmpc_int + 9}{10} }
+    \int_incr:N \l_@@_tmpf_int
+%    \end{macrocode}
+% Add the dice total to the position (note that this runs from \(1\) to \(10\))
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpa_int { \int_mod:nn {\l_@@_tmpa_int + \l_@@_tmpc_int -1}{10} + 1}
+%    \end{macrocode}
+% Add the position to the score
+%    \begin{macrocode}
+    \int_add:Nn \l_@@_tmpd_int {\l_@@_tmpa_int}
+%    \end{macrocode}
+% Test for ending condition
+%    \begin{macrocode}
+    \int_compare:nNnT {\l_@@_tmpd_int} > {999}
+    {
+      \bool_set_false:N \l_@@_tmpa_bool
+      \int_set:Nn \l_@@_tmpf_int { \l_@@_tmpf_int * 3 * \l_@@_tmpe_int - 1}
+    }
+%    \end{macrocode}
+% Player \(2\) turn.
+%
+% Even if Player \(1\) has won, we still do this to avoid evaluating a conditional on every turn.%
+% This does mean that \texttt{tmpf} gets incremented by \(1\), which is why there is a \(-1\) in the above expression for when Player \(1\) wins.
+%
+% Increment the dice rolls (safer to add \(9\) than subtract \(1\)) and the number of rolls.
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpc_int { \int_mod:nn {\l_@@_tmpc_int + 9}{10} }
+    \int_incr:N \l_@@_tmpf_int
+%    \end{macrocode}
+% Add the dice total to the position (note that this runs from \(1\) to \(10\))
+%    \begin{macrocode}
+    \int_set:Nn \l_@@_tmpb_int { \int_mod:nn {\l_@@_tmpb_int + \l_@@_tmpc_int -1}{10} + 1}
+%    \end{macrocode}
+% Add the position to the score
+%    \begin{macrocode}
+    \int_add:Nn \l_@@_tmpe_int {\l_@@_tmpb_int}
+%    \end{macrocode}
+% Test for ending condition
+%    \begin{macrocode}
+    \int_compare:nNnT {\l_@@_tmpe_int} > {999}
+    {
+      \bool_set_false:N \l_@@_tmpa_bool
+      \int_set:Nn \l_@@_tmpf_int { \l_@@_tmpf_int * 3 * \l_@@_tmpd_int }
+    }
+  }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  \int_gset_eq:NN \g_@@_output_int \l_@@_tmpf_int
+  \group_end:
+}
+%    \end{macrocode}
+%
+% As we add at least one per turn, no game can last longer than \(21\) turns
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_quantum_one_intarray {21}
+\intarray_new:Nn \g_@@_quantum_two_intarray {21}
+\intarray_new:Nn \g_@@_quantum_one_universes_intarray {21}
+\intarray_new:Nn \g_@@_quantum_two_universes_intarray {21}
+
+\cs_new_protected_nopar:Npn \@@_quantum_dirac_dice:nn #1#2
+{
+  \group_begin:
+  \intarray_gzero:N \g_@@_quantum_one_intarray
+  \intarray_gzero:N \g_@@_quantum_two_intarray
+  \intarray_gzero:N \g_@@_quantum_one_universes_intarray
+  \intarray_gzero:N \g_@@_quantum_two_universes_intarray
+%    \end{macrocode}
+% Calculating both of these exhausts \TeX's capacity, so we save to a file.
+%
+% If the file exists for Player \(1\), read it in.
+%    \begin{macrocode}
+  \bool_set_true:N \l_@@_tmpa_bool
+  \@@_quantum_generate:NNn \l_@@_tmpa_bool \g_@@_quantum_one_intarray {#1}
+  \@@_quantum_generate:NNn \l_@@_tmpa_bool \g_@@_quantum_two_intarray {#2}
+%    \end{macrocode}
+% Now we should have both sets of arrays, at least on a second run.
+%
+% To work out how many universes are in play on a particular turn we need to collapse the universes.
+% At each stage, we cumulatively add the number of universes that are counted at the next stage by divide by \(27\) (working from the end to the begining so that it is cumulative).
+%    \begin{macrocode}
+  \int_step_inline:nnnn {\intarray_count:N \g_@@_quantum_one_intarray - 1} {-1} {1}
+  {
+    \intarray_gset:Nnn \g_@@_quantum_one_universes_intarray {##1}
+    {
+      (
+      \intarray_item:Nn \g_@@_quantum_one_intarray {##1}
+      +
+      \intarray_item:Nn \g_@@_quantum_one_universes_intarray {##1+1}
+      )
+      /27
+    }
+    \intarray_gset:Nnn \g_@@_quantum_two_universes_intarray {##1}
+    {
+      (
+      \intarray_item:Nn \g_@@_quantum_two_intarray {##1}
+      +
+      \intarray_item:Nn \g_@@_quantum_two_universes_intarray {##1+1}
+      )
+      /27
+    }
+  }
+%    \end{macrocode}
+% For each player we now have two lists.
+% One list says in how many universes they have won at that turn, the other says how many universes are in effect at that turn.
+%
+% To work out Player \(1\)s wins, we simply multiply these componentwise and add.
+%    \begin{macrocode}
+  \int_zero:N \l_@@_tmpa_int
+  \int_zero:N \l_@@_tmpb_int
+  \int_zero:N \l_@@_tmpc_int
+  \int_zero:N \l_@@_tmpd_int
+  \int_zero:N \l_@@_tmpe_int
+  \int_zero:N \l_@@_tmpf_int
+  \int_zero:N \l_@@_tmpg_int
+%    \end{macrocode}
+% 
+% Unfortunately, even the multiplication can lead to overflow
+%    \begin{macrocode}
+  \int_step_inline:nn {\intarray_count:N \g_@@_quantum_one_intarray}
+  {
+    \int_set:Nn \l_@@_tmpa_int
+    {
+      \intarray_item:Nn \g_@@_quantum_one_intarray {##1}
+    }
+    \int_set:Nn \l_@@_tmpb_int
+    {
+      \intarray_item:Nn \g_@@_quantum_two_universes_intarray {##1}
+    }
+    \int_zero:N \l_@@_tmpc_int
+    \int_zero:N \l_@@_tmpd_int
+
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpa_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpc_int
+      \int_sub:Nn \l_@@_tmpa_int {\c_@@_overflow_mult_int}
+    }
+
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpb_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpd_int
+      \int_sub:Nn \l_@@_tmpb_int {\c_@@_overflow_mult_int}
+    }
+%    \end{macrocode}
+% We now have two pairs of integers to multiply.
+% We add these to the current integer regisisters.
+%    \begin{macrocode}
+    \int_add:Nn \l_@@_tmpe_int
+    {
+      \l_@@_tmpa_int * \l_@@_tmpb_int
+    }
+    \int_add:Nn \l_@@_tmpf_int
+    {
+      \l_@@_tmpa_int * \l_@@_tmpd_int
+      +
+      \l_@@_tmpc_int * \l_@@_tmpb_int
+    }
+    \int_add:Nn \l_@@_tmpg_int
+    {
+      \l_@@_tmpc_int * \l_@@_tmpd_int
+    }
+%    \end{macrocode}
+% Now deal with the overflows.
+%    \begin{macrocode}
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpe_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpf_int
+      \int_sub:Nn \l_@@_tmpe_int {\c_@@_overflow_mult_int}
+    }
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpf_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpg_int
+      \int_sub:Nn \l_@@_tmpf_int {\c_@@_overflow_mult_int}
+    }
+
+  }
+  \triple_int_to_tl:NNNN \l_@@_tmpa_tl \l_@@_tmpg_int \l_@@_tmpf_int \l_@@_tmpe_int
+%    \end{macrocode}
+% Same, but for Player \(2\).
+%
+% Clear the registers.
+%    \begin{macrocode}
+  \int_zero:N \l_@@_tmpa_int
+  \int_zero:N \l_@@_tmpb_int
+  \int_zero:N \l_@@_tmpc_int
+  \int_zero:N \l_@@_tmpd_int
+  \int_zero:N \l_@@_tmpe_int
+  \int_zero:N \l_@@_tmpf_int
+  \int_zero:N \l_@@_tmpg_int
+%    \end{macrocode}
+% There's an offset to take into account the fact that Player \(2\) goes second.
+%    \begin{macrocode}
+  \int_step_inline:nn {\intarray_count:N \g_@@_quantum_one_intarray - 1}
+  {
+    \int_set:Nn \l_@@_tmpa_int
+    {
+      \intarray_item:Nn \g_@@_quantum_two_intarray {##1}
+    }
+    \int_set:Nn \l_@@_tmpb_int
+    {
+      \intarray_item:Nn \g_@@_quantum_one_universes_intarray {##1+1}
+    }
+    \int_zero:N \l_@@_tmpc_int
+    \int_zero:N \l_@@_tmpd_int
+
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpa_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpc_int
+      \int_sub:Nn \l_@@_tmpa_int {\c_@@_overflow_mult_int}
+    }
+
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpb_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpd_int
+      \int_sub:Nn \l_@@_tmpb_int {\c_@@_overflow_mult_int}
+    }
+%    \end{macrocode}
+% We now have two pairs of integers to multiply.
+% We add these to the current integer regisisters.
+%    \begin{macrocode}
+    \int_add:Nn \l_@@_tmpe_int
+    {
+      \l_@@_tmpa_int * \l_@@_tmpb_int
+    }
+    \int_add:Nn \l_@@_tmpf_int
+    {
+      \l_@@_tmpa_int * \l_@@_tmpd_int
+      +
+      \l_@@_tmpc_int * \l_@@_tmpb_int
+    }
+    \int_add:Nn \l_@@_tmpg_int
+    {
+      \l_@@_tmpc_int * \l_@@_tmpd_int
+    }
+%    \end{macrocode}
+% Now deal with the overflows.
+%    \begin{macrocode}
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpe_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpf_int
+      \int_sub:Nn \l_@@_tmpe_int {\c_@@_overflow_mult_int}
+    }
+    \bool_while_do:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpf_int} > {\c_@@_overflow_mult_int - 1}
+    }
+    {
+      \int_incr:N \l_@@_tmpg_int
+      \int_sub:Nn \l_@@_tmpf_int {\c_@@_overflow_mult_int}
+    }
+
+  }
+  \triple_int_to_tl:NNNN \l_@@_tmpb_tl \l_@@_tmpg_int \l_@@_tmpf_int \l_@@_tmpe_int
+%    \end{macrocode}
+% Pad with \(0\)s
+%    \begin{macrocode}
+  \int_compare:nNnTF {\tl_count:N \l_@@_tmpa_tl} < {\tl_count:N \l_@@_tmpb_tl}
+  {
+    \prg_replicate:nn {\tl_count:N \l_@@_tmpb_tl - \tl_count:N \l_@@_tmpa_tl}
+    {
+      \tl_put_left:Nn \l_@@_tmpa_tl {0}
+    }
+  }
+  {
+    \prg_replicate:nn {\tl_count:N \l_@@_tmpa_tl - \tl_count:N \l_@@_tmpb_tl}
+    {
+      \tl_put_left:Nn \l_@@_tmpb_tl {0}
+    }
+  }
+%    \end{macrocode}
+% Compare the strings
+%    \begin{macrocode}
+  \str_compare:eNeTF {\tl_use:N \l_@@_tmpa_tl } < {\tl_use:N \l_@@_tmpb_tl}
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpb_tl
+  }
+  {
+    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  }
+  \group_end:
+}
+%    \end{macrocode}
+%
+% Read in or generate the data for a particular starting point, saving it in an integer array.
+% We also set a boolean flag so that we only generate one set of data per compilation.
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_quantum_generate:NNn #1#2#3
+{
+%    \end{macrocode}
+% Clear the integer array.
+%    \begin{macrocode}
+  \intarray_gzero:N #2
+%    \end{macrocode}
+% Try opening the file.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {Day21-Start-#3.txt}
+  {
+%    \end{macrocode}
+% File exists, so read it in.
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \int_incr:N \l_@@_tmpa_int
+      \intarray_gset:Nnn #2 {\l_@@_tmpa_int} {##1}
+    }
+    \ior_close:N \l_@@_tmpa_ior
+  }
+  {
+%    \end{macrocode}
+% No file, so generate the turns.
+%
+% Providing, that is, we haven't already generated a data set.
+%    \begin{macrocode}
+    \bool_if:NT #1
+    {
+      \seq_clear:N \l_@@_tmpa_seq
+      \@@_quantum_dirac_roll:NNn #2 \l_@@_tmpa_seq {#3}
+%    \end{macrocode}
+% Now save to a file.
+%    \begin{macrocode}
+      \iow_open:Nn \l_@@_tmpa_iow {Day21-Start-#3.txt}
+      \int_step_inline:nn {\intarray_count:N #2}
+      {
+        \iow_now:Nx \l_@@_tmpa_iow
+        {
+          \intarray_item:Nn #2 {##1}
+        }
+      }
+      \iow_close:N \l_@@_tmpa_iow
+      \bool_set_false:N #1
+    }
+  }
+}
+%    \end{macrocode}
+%
+% Play the game
+%    \begin{macrocode}
+\seq_const_from_clist:Nn \c_@@_quantum_frequencies_seq {0,0,1,3,6,7,6,3,1}
+
+\cs_new_protected_nopar:Npn \@@_quantum_dirac_roll:NNn #1#2#3
+{
+  \int_set:Nn \l_@@_tmpa_int {#3}
+  \int_zero:N \l_@@_tmpb_int
+  \seq_map_inline:Nn #2
+  {
+    \int_set:Nn \l_@@_tmpa_int {\int_mod:nn {\l_@@_tmpa_int + ##1 - 1}{10} + 1}
+    \int_add:Nn \l_@@_tmpb_int {\l_@@_tmpa_int}
+  }
+  \int_compare:nNnTF {\l_@@_tmpb_int} > {20}
+  {
+    
+    \int_set:Nn \l_@@_tmpc_int {1}
+    \seq_map_inline:Nn #2
+    {
+      \int_set:Nn \l_@@_tmpc_int
+      {
+        \l_@@_tmpc_int * \seq_item:Nn \c_@@_quantum_frequencies_seq {##1}
+      }
+    }
+
+    \intarray_gset:Nnn #1 {\seq_count:N #2} {\intarray_item:Nn #1 {\seq_count:N #2} + \l_@@_tmpc_int}
+    \bool_do_while:nn
+    {
+      \int_compare_p:nNn {\l_@@_tmpa_tl} = {9}
+      &&
+      ! \seq_if_empty_p:N #2
+    }
+    {
+      \seq_pop_right:NN #2 \l_@@_tmpa_tl
+    }
+
+    \int_compare:nNnF {\l_@@_tmpa_tl} = {9}
+    {
+      \seq_put_right:Nx #2 { \int_eval:n {\l_@@_tmpa_tl +1}}
+    }
+    
+  }
+  {
+    \seq_put_right:Nn #2 {3}
+  }
+  \seq_if_empty:NF #2
+  {
+    \@@_quantum_dirac_roll:NNn #1#2 {#3}
+  }
+}
+%    \end{macrocode}
+%
+%
+%
+%    \begin{macrocode}
+\NewDocumentCommand \DiracDiceI {m}
+{
+  \@@_check_answer:nnn {int} {DiracDiceI}
+  {
+    \@@_dirac_dice:nn {4}{10}
+  }
+  \int_use:N \g_@@_output_int
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \DiracDiceII {m}
+{
+  \@@_check_answer:nnn {tl} {DiracDiceII}
+  {
+    \@@_quantum_dirac_dice:nn {4}{10}
+  }
+  \tl_use:N \g_@@_output_tl 
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+%
+% We generate, and cache, the dice data here as it seems to cause issues generating it when we're doing the analysis.
+% I \emph{think} it is to do with the fact that the calculations are done inside a group (caused by the \texttt{enumerate} environment in the main document) as it generates a \texttt{save stack} error.
+%    \begin{macrocode}
+\bool_set_true:N \l_@@_tmpa_bool
+\int_step_inline:nn {10}
+{
+  \bool_if:NF \l_@@_tmpa_bool
+  {
+    \msg_info:nnn { advent } { Dirac Dice } {#1}
+  }
+  \@@_quantum_generate:NNn \l_@@_tmpa_bool \g_@@_quantum_one_intarray {#1}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+% \begin{macro}{
+% \ImageEnhance
+% }
+%
+%
+% Each iteration expands the area that could contain the image by one pixel on each side, so the border has to be at least the number of iterations.
+%    \begin{macrocode}
+\int_const:Nn \c_@@_img_border_int {55}
+\int_const:Nn \c_@@_img_size_int {100 + 2 * \c_@@_img_border_int}
+\intarray_new:Nn \g_@@_image_enhancer_intarray {512}
+\intarray_new:Nn \g_@@_image_a_intarray {\c_@@_img_size_int * \c_@@_img_size_int}
+\intarray_new:Nn \g_@@_image_b_intarray {\c_@@_img_size_int * \c_@@_img_size_int}
+\cs_generate_variant:Nn \int_from_bin:n {V}
+\cs_new_protected_nopar:Npn \@@_image_enhance:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Open the file and read in the data.
+%    \begin{macrocode}
+  \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+  {
+    \intarray_gzero:N \g_@@_image_enhancer_intarray
+    \intarray_gzero:N \g_@@_image_a_intarray
+    \intarray_gzero:N \g_@@_image_b_intarray
+%    \end{macrocode}
+% Read in the enhancer data and convert to array
+%    \begin{macrocode}
+    \ior_str_get:NN \l_@@_tmpa_ior \l_@@_tmpa_str
+    \int_zero:N \l_@@_tmpa_int 
+    \str_map_inline:Nn \l_@@_tmpa_str
+    {
+      \int_incr:N \l_@@_tmpa_int
+%    \end{macrocode}
+% Test the dot to avoid having to figure out if there are any catcode hassles with hashes.
+%    \begin{macrocode}
+      \str_if_eq:nnF {##1} {.}
+      {
+        \intarray_gset:Nnn \g_@@_image_enhancer_intarray {\l_@@_tmpa_int} {1}
+      }
+    }
+%    \end{macrocode}
+% Blank line.
+%    \begin{macrocode}
+    \ior_str_get:NN \l_@@_tmpa_ior \l_@@_tmpa_str
+%    \end{macrocode}
+% Rest of the file is the image.
+%
+% The \texttt{tmpa} register is the index of the current element in the array, we initialise it by skipping the initial border rows.
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_set:Nn \l_@@_tmpa_int { \c_@@_img_size_int * \c_@@_img_border_int }
+%    \end{macrocode}
+% Now we iterate over the lines in the file
+%    \begin{macrocode}
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+%    \end{macrocode}
+% Add in the left border
+%    \begin{macrocode} 
+      \int_add:Nn \l_@@_tmpa_int {\c_@@_img_border_int}
+      \tl_map_inline:nn {##1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+%    \end{macrocode}
+% As before, test against a dot
+%    \begin{macrocode}
+        \str_if_eq:nnF {####1} {.}
+        {
+          \intarray_gset:Nnn \g_@@_image_a_intarray {\l_@@_tmpa_int} {1}
+        }
+      }
+%    \end{macrocode}
+% Add the right border
+%    \begin{macrocode}
+      \int_add:Nn \l_@@_tmpa_int {\c_@@_img_border_int}
+    }
+    \ior_close:N \l_@@_tmpa_ior
+%    \end{macrocode}
+% Now start the image enhancement algorithm.
+%
+% We're using two arrays as ``buffers'' so to make it easier to swap we'll keep track of them in token lists, \texttt{tmpa} is the source and \texttt{tmpb} the destination.
+%    \begin{macrocode}
+    \tl_set:Nn \l_@@_tmpa_tl {a}
+    \tl_set:Nn \l_@@_tmpb_tl {b}
+%    \end{macrocode}
+% We need to keep track of the ``at infinity'' pixels, so this integer register is for that.
+%    \begin{macrocode}    
+    \int_set:Nn \l_@@_tmpa_int {0}
+%    \end{macrocode}
+% We'll do the iteration some number of times
+%    \begin{macrocode}
+    \prg_replicate:nn {#1}
+    {
+%    \end{macrocode}
+% For each step in the overall iteration, we step through the array.
+%    \begin{macrocode}
+      \int_step_inline:nn {\intarray_count:c {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}}
+      {
+        \tl_clear:N \l_@@_tmpc_tl
+%    \end{macrocode}
+% Any cells that don't exist (when the array is viewed as a grid) need to be set to the ``at infinity'' pixels.
+%
+% First square in the \(3 \times 3\) grid is ``at infinity'' if we're on the top or left edge.
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} < {\c_@@_img_size_int + 1}
+          ||
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {1}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              -
+              \c_@@_img_size_int
+              - 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Second square is ``at infinity'' if we're on the top edge.
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} < {\c_@@_img_size_int + 1}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              -
+              \c_@@_img_size_int
+            }
+          }
+        }
+%    \end{macrocode}
+% Third square is ``at infinity'' if we're on the top or right edge.
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} < {\c_@@_img_size_int + 1}
+          ||
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {0}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              -
+              \c_@@_img_size_int
+              + 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Fourth square if we're on the left edge
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {1}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              - 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Fifth square is never ``at infinity''
+%    \begin{macrocode}
+        \tl_put_right:Nx \l_@@_tmpc_tl
+        {
+          \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+          {
+            ##1
+          }
+        }
+%    \end{macrocode}
+% Sixth square if we're on the right edge
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {0}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              + 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Seventh square if we're on the left or bottom
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} > {\c_@@_img_size_int * (\c_@@_img_size_int - 1)}
+          ||
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {1}
+        }
+        {
+        \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              +
+              \c_@@_img_size_int
+              - 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Eighth square if we're on the bottom
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} > {\c_@@_img_size_int * (\c_@@_img_size_int - 1)}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              +
+              \c_@@_img_size_int
+            }
+          }
+        }
+%    \end{macrocode}
+% Ninth square if we're on the bottom or right
+%    \begin{macrocode}
+        \bool_if:nTF
+        {
+          \int_compare_p:nNn {##1} > {\c_@@_img_size_int * (\c_@@_img_size_int - 1)}
+          ||
+          \int_compare_p:nNn {\int_mod:nn {##1}{\c_@@_img_size_int}} = {0}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+        }
+        {
+          \tl_put_right:Nx \l_@@_tmpc_tl
+          {
+            \intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}
+            {
+              ##1
+              +
+              \c_@@_img_size_int
+              + 1
+            }
+          }
+        }
+%    \end{macrocode}
+% Phew!
+%
+% Now we look up that value in the image enhancer array and save it into the target array.
+%    \begin{macrocode}
+        \intarray_gset:cnn {g_@@_image_ \tl_use:N \l_@@_tmpb_tl _intarray}
+        {
+          ##1
+        }
+        {
+          \intarray_item:Nn \g_@@_image_enhancer_intarray
+          {
+            \int_from_bin:V \l_@@_tmpc_tl + 1
+          }
+        }
+%    \end{macrocode}
+% End of the array loop
+%    \begin{macrocode}
+      }
+%    \end{macrocode}
+% Lastly, deal with ``at infinity''
+%    \begin{macrocode}
+      \tl_clear:N \l_@@_tmpc_tl
+      \prg_replicate:nn {9}
+      {
+        \tl_put_right:Nx \l_@@_tmpc_tl {\int_use:N \l_@@_tmpa_int}
+      }
+      \int_set:Nn \l_@@_tmpa_int
+      {
+        \intarray_item:Nn \g_@@_image_enhancer_intarray
+        {
+          \int_from_bin:V \l_@@_tmpc_tl + 1
+        }
+      }
+%    \end{macrocode}
+% Last step in the iteration is to swap the source and target labels
+%    \begin{macrocode}
+      \tl_set_eq:NN \l_@@_tmpc_tl \l_@@_tmpa_tl
+      \tl_set_eq:NN \l_@@_tmpa_tl \l_@@_tmpb_tl
+      \tl_set_eq:NN \l_@@_tmpb_tl \l_@@_tmpc_tl
+      \tl_clear:N \l_@@_tmpc_tl
+%    \end{macrocode}
+% End the iteration loop
+%    \begin{macrocode}
+    }
+%    \end{macrocode}
+% First task is to count the pixels
+%    \begin{macrocode}
+    \int_zero:N \l_@@_tmpa_int
+    \int_step_inline:nn {\intarray_count:c {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray}}
+    {
+      \int_add:Nn \l_@@_tmpa_int {\intarray_item:cn {g_@@_image_ \tl_use:N \l_@@_tmpa_tl _intarray} {##1}}
+    }
+    \int_gset_eq:NN \g_@@_output_int \l_@@_tmpa_int
+  }
+  {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+    \msg_warning:nnn { advent } { missing file } {#2}
+  }
+  \group_end:
+}
+\cs_generate_variant:Nn \@@_image_enhance:nn {Vn}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \ImageEnhance {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \int_set:Nn \l_@@_tmpa_int {2}
+  }
+  {
+    \int_set:Nn \l_@@_tmpa_int {50}
+  }
+  \@@_check_answer:nxn {int} {ImageEnhance-\int_use:N \l_@@_tmpa_int}
+  {
+    \@@_image_enhance:Vn \l_@@_tmpa_int {#2}
+  }
+  \int_use:N \g_@@_output_int
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{
+% \Reboot
+% }
+%
+%    \begin{macrocode}
+\intarray_new:Nn \g_@@_reboot_xmin_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_xmax_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_ymin_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_ymax_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_zmin_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_zmax_intarray {2097152}
+\intarray_new:Nn \g_@@_reboot_sign_intarray {2097152}
+\cs_new_protected_nopar:Npn \@@_reboot:nn #1#2
+{
+  \group_begin:
+%    \end{macrocode}
+% Initialise all the stuff
+%    \begin{macrocode}
+  \intarray_gzero:N \g_@@_reboot_xmin_intarray
+  \intarray_gzero:N \g_@@_reboot_xmax_intarray
+  \intarray_gzero:N \g_@@_reboot_ymin_intarray
+  \intarray_gzero:N \g_@@_reboot_ymax_intarray
+  \intarray_gzero:N \g_@@_reboot_zmin_intarray
+  \intarray_gzero:N \g_@@_reboot_zmax_intarray
+  \intarray_gzero:N \g_@@_reboot_sign_intarray
+%    \begin{macrocode}
+% See if we have anything in the cache
+%    \end{macrocode}
+  \int_zero:N \l_@@_tmpd_int
+  \int_zero:N \l_@@_tmpa_int
+  \ior_open:NnT \l_@@_tmpa_ior {#2-Cuboids-#1.txt}
+  {
+    \ior_map_inline:Nn \l_@@_tmpa_ior
+    {
+      \tl_if_head_is_group:nTF {##1}
+      {
+        \int_incr:N \l_@@_tmpa_int
+        \intarray_gset:Nnn \g_@@_reboot_xmin_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{1}}
+        \intarray_gset:Nnn \g_@@_reboot_xmax_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{2}}
+        \intarray_gset:Nnn \g_@@_reboot_ymin_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{3}}
+        \intarray_gset:Nnn \g_@@_reboot_ymax_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{4}}
+        \intarray_gset:Nnn \g_@@_reboot_zmin_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{5}}
+        \intarray_gset:Nnn \g_@@_reboot_zmax_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{6}}
+        \intarray_gset:Nnn \g_@@_reboot_sign_intarray {\l_@@_tmpa_int}
+        {\tl_item:nn {##1}{7}}
+      }
+      {
+        \int_set:Nn \l_@@_tmpd_int {##1}
+      }
+    }
+    \ior_close:N \l_@@_tmpa_ior
+  }
+%    \end{macrocode}
+% There are \(420\) instructions in total, so if we've reached that stage with the cache then we don't need to do any calculations.
+%    \begin{macrocode}
+  \int_compare:nNnT {\l_@@_tmpd_int} < {420}
+  {
+%    \end{macrocode}
+% The first parameter tells us whether we're sticking to the \([-50,50]^3\) cube.
+% We set this to false if we are.
+%    \begin{macrocode}
+    \bool_set:Nn \l_@@_tmpa_bool
+    {
+      \int_compare_p:nNn {#1} = {0}
+    }
+%    \end{macrocode}
+% This is for caching, and we keep count of how many lines we've read.
+% We start by writing back what we've already read in since the write clears the file. 
+%    \begin{macrocode}
+    \iow_open:Nn \l_@@_tmpa_iow {#2-Cuboids-#1.txt}
+    \int_step_inline:nn {\l_@@_tmpa_int}
+    {
+      \iow_now:Nx \l_@@_tmpa_iow
+      {
+        {\intarray_item:Nn \g_@@_reboot_xmin_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_xmax_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_ymin_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_ymax_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_zmin_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_zmax_intarray {##1}}
+        {\intarray_item:Nn \g_@@_reboot_sign_intarray {##1}}
+      }
+    }
+    \iow_now:Nx \l_@@_tmpa_iow
+    {
+      \int_use:N \l_@@_tmpd_int
+    }
+%    \end{macrocode}
+% Open the file and read in the data.
+%
+% Map through the file, keep count of how many lines we've read
+%    \begin{macrocode}
+    \ior_open:NnTF \l_@@_tmpa_ior {#2 .txt}
+    {
+      \ior_map_inline:Nn \l_@@_tmpa_ior
+      {
+        \int_incr:N \l_@@_tmpc_int
+        \int_compare:nNnT {\l_@@_tmpc_int} > {\l_@@_tmpd_int}
+        {
+%    \end{macrocode}
+% Parse the instruction line
+%    \begin{macrocode}
+          \@@_parse_on_off:Nw \l_@@_tmpa_tl ##1 \q_stop
+%    \end{macrocode}
+% We need to keep track of the existing cuboids and where to insert the new ones.
+%    \begin{macrocode}
+          \int_set_eq:NN \l_@@_tmpb_int \l_@@_tmpa_int
+%    \end{macrocode}
+% Check if this cuboid overlaps with the \([-50,50]^3\) cuboid.
+% If \emph{any} of the following is true then it doesn't.
+% We use the \texttt{tmpa} bool here since if we're not to stick to the inner cuboid then this will be false and the test fails.
+%    \begin{macrocode}
+          \bool_lazy_or:nnT
+          {
+            \l_@@_tmpa_bool
+          }
+          {
+            !\bool_lazy_any_p:n
+            {
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {1}} > {50}}
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {2}} < {-50}}
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {3}} > {50}}
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {4}} < {-50}}
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {5}} > {50}}
+              {\int_compare_p:nNn {\tl_item:Nn \l_@@_tmpa_tl {6}} < {-50}}
+            }
+          }
+          {
+%    \end{macrocode}
+% None of the above were true, so there is an overlap.
+%
+% If we're working within the \([-50,50]^3\) cuboid, we start by reducing our cuboid to its intersection with that.
+%    \begin{macrocode}
+            \bool_if:NTF \l_@@_tmpa_bool
+            {
+              \tl_set_eq:NN \l_@@_tmpb_tl \l_@@_tmpa_tl
+            }
+            {
+              \tl_set:Nx \l_@@_tmpb_tl
+              {
+                {\int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {1}}{-50}}
+                {\int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {2}}{50}}
+                {\int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {3}}{-50}}
+                {\int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {4}}{50}}
+                {\int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {5}}{-50}}
+                {\int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {6}}{50}}
+              }
+            }
+%    \end{macrocode}
+% Now see if this is an ``on'' or ``off'' instruction.
+%    \begin{macrocode}
+            \int_compare:nNnT {\tl_item:Nn \l_@@_tmpa_tl {7}} = {1}
+            {
+%    \end{macrocode}
+% It's an ``on'', so add it to the list.
+%    \begin{macrocode}
+              \int_incr:N \l_@@_tmpb_int
+              \intarray_gset:Nnn \g_@@_reboot_xmin_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {1}}
+              \intarray_gset:Nnn \g_@@_reboot_xmax_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {2}}
+              \intarray_gset:Nnn \g_@@_reboot_ymin_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {3}}
+              \intarray_gset:Nnn \g_@@_reboot_ymax_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {4}}
+              \intarray_gset:Nnn \g_@@_reboot_zmin_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {5}}
+              \intarray_gset:Nnn \g_@@_reboot_zmax_intarray {\l_@@_tmpb_int} {\tl_item:Nn \l_@@_tmpb_tl {6}}
+              \intarray_gset:Nnn \g_@@_reboot_sign_intarray {\l_@@_tmpb_int} {1}
+            }
+%    \end{macrocode}
+% Now step through the existing cuboids and add their intersections, if they are non-empty.
+%    \begin{macrocode}
+            \int_step_inline:nn {\l_@@_tmpa_int}
+            {
+%    \end{macrocode}
+% Check for an intersection with the current cuboid.
+%    \begin{macrocode}
+              \bool_lazy_any:nF
+              {
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {1}}
+                  >
+                  {\intarray_item:Nn \g_@@_reboot_xmax_intarray {####1}}
+                }
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {2}}
+                  <
+                  {\intarray_item:Nn \g_@@_reboot_xmin_intarray {####1}}
+                }
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {3}}
+                  >
+                  {\intarray_item:Nn \g_@@_reboot_ymax_intarray {####1}}
+                }
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {4}}
+                  <
+                  {\intarray_item:Nn \g_@@_reboot_ymin_intarray {####1}}
+                }
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {5}}
+                  >
+                  {\intarray_item:Nn \g_@@_reboot_zmax_intarray {####1}}
+                }
+                {
+                  \int_compare_p:nNn
+                  {\tl_item:Nn \l_@@_tmpa_tl {6}}
+                  <
+                  {\intarray_item:Nn \g_@@_reboot_zmin_intarray {####1}}
+                }
+              }
+              {
+                \int_incr:N \l_@@_tmpb_int
+                \intarray_gset:Nnn \g_@@_reboot_xmin_intarray {\l_@@_tmpb_int}
+                {
+                  \int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {1}}
+                  {\intarray_item:Nn \g_@@_reboot_xmin_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_xmax_intarray {\l_@@_tmpb_int}
+                {
+                  \int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {2}}
+                  {\intarray_item:Nn \g_@@_reboot_xmax_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_ymin_intarray {\l_@@_tmpb_int}
+                {
+                  \int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {3}}
+                  {\intarray_item:Nn \g_@@_reboot_ymin_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_ymax_intarray {\l_@@_tmpb_int}
+                {
+                  \int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {4}}
+                  {\intarray_item:Nn \g_@@_reboot_ymax_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_zmin_intarray {\l_@@_tmpb_int}
+                {
+                  \int_max:nn {\tl_item:Nn \l_@@_tmpa_tl {5}}
+                  {\intarray_item:Nn \g_@@_reboot_zmin_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_zmax_intarray {\l_@@_tmpb_int}
+                {
+                  \int_min:nn {\tl_item:Nn \l_@@_tmpa_tl {6}}
+                  {\intarray_item:Nn \g_@@_reboot_zmax_intarray {####1}}
+                }
+                \intarray_gset:Nnn \g_@@_reboot_sign_intarray {\l_@@_tmpb_int}
+                {
+                  -1*(\intarray_item:Nn \g_@@_reboot_sign_intarray {####1})
+                }
+              }
+            }
+%    \end{macrocode}
+% Cache what we have so far
+%    \begin{macrocode}
+            \int_step_inline:nnn {\l_@@_tmpa_int+1} {\l_@@_tmpb_int}
+            {
+              \iow_now:Nx \l_@@_tmpa_iow
+              {
+                {\intarray_item:Nn \g_@@_reboot_xmin_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_xmax_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_ymin_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_ymax_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_zmin_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_zmax_intarray {####1}}
+                {\intarray_item:Nn \g_@@_reboot_sign_intarray {####1}}
+              }
+            }
+            \iow_now:Nx \l_@@_tmpa_iow
+            {
+              \int_use:N \l_@@_tmpc_int
+            }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%    \end{macrocode}
+% Set the counter to the end of the cuboids, and ready to set off again.
+%    \begin{macrocode}
+            \int_set_eq:NN \l_@@_tmpa_int \l_@@_tmpb_int
+          }
+        }
+      }
+      \iow_close:N \l_@@_tmpa_iow
+      \ior_close:N \l_@@_tmpa_ior
+    }
+    {
+%    \end{macrocode}
+% This gets invoked if there was a problem with opening the file.
+%    \begin{macrocode}
+      \msg_warning:nnn { advent } { missing file } {#2}
+    }
+  }
+%    \end{macrocode}
+% Now we count the cubes.
+% Each cuboid contributes its size multiplied by its sign.
+%    \begin{macrocode}
+  \bigint_new:N \g_@@_tmpa_bigint
+  \bigint_new:N \g_@@_tmpb_bigint
+  \bigint_new:N \g_@@_tmpc_bigint
+  \bigint_new:N \g_@@_tmpd_bigint
+  \int_step_inline:nn {\l_@@_tmpa_int}
+  {
+    \int_set:Nn \l_@@_tmpb_int
+    {
+      \intarray_item:Nn \g_@@_reboot_xmax_intarray {##1}
+      -
+      \intarray_item:Nn \g_@@_reboot_xmin_intarray {##1}
+      +1
+    }
+    \bigint_set:NV \g_@@_tmpb_bigint \l_@@_tmpb_int
+    \int_set:Nn \l_@@_tmpb_int
+    {
+      \intarray_item:Nn \g_@@_reboot_ymax_intarray {##1}
+      -
+      \intarray_item:Nn \g_@@_reboot_ymin_intarray {##1}
+      +1
+    }
+    \bigint_set:NV \g_@@_tmpc_bigint \l_@@_tmpb_int
+    \int_set:Nn \l_@@_tmpb_int
+    {
+      \intarray_item:Nn \g_@@_reboot_zmax_intarray {##1}
+      -
+      \intarray_item:Nn \g_@@_reboot_zmin_intarray {##1}
+      +1
+    }
+    \bigint_set:NV \g_@@_tmpd_bigint \l_@@_tmpb_int
+
+    \bigint_mult:NN \g_@@_tmpb_bigint \g_@@_tmpc_bigint
+    \bigint_mult:NN \g_@@_tmpb_bigint \g_@@_tmpd_bigint
+
+
+    \int_compare:nNnTF
+    {\intarray_item:Nn \g_@@_reboot_sign_intarray {##1}}
+    =
+    {1}
+    {
+      \bigint_add:NN \g_@@_tmpa_bigint \g_@@_tmpb_bigint
+    }
+    {
+      \bigint_sub:NN \g_@@_tmpa_bigint \g_@@_tmpb_bigint
+    }
+
+  } 
+
+  \bigint_to_tl:NN \l_@@_tmpa_tl \g_@@_tmpa_bigint
+  \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
+  \group_end:
+}
+\cs_generate_variant:Nn \@@_reboot:nn {Vn}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \@@_parse_on_off:Nw #1#2~x=#3..#4,y=#5..#6,z=#7..#8 \q_stop
+{
+  \tl_set:Nn #1
+  {
+    {#3}{#4}
+    {#5}{#6}
+    {#7}{#8}
+  }
+  \tl_if_eq:nnTF {#2} {on}
+  {
+    \tl_put_right:Nn #1 {{1}}
+  }
+  {
+    \tl_put_right:Nn #1 {{-1}}
+  }
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\NewDocumentCommand \Reboot {s m}
+{
+  \IfBooleanTF {#1}
+  {
+    \tl_set:Nn \l_@@_tmpa_tl {1}
+  }
+  {
+    \tl_set:Nn \l_@@_tmpa_tl {0}
+%    \bool_gset_true:N \g_@@_regenerate_next_bool
+  }
+  \@@_check_answer:nxn {tl} {Reboot-\tl_use:N \l_@@_tmpa_tl}
+  {
+    \@@_reboot:Vn \l_@@_tmpa_tl {#2}
+  }
+  \tl_use:N \g_@@_output_tl
+  \@@_clear_outputs:
+}
+%    \end{macrocode}
+% \end{macro}
 %
 % \iffalse
 %</advent>
@@ -4095,13 +5598,10 @@ solving the Advent of Code 2021}
 %    \begin{macrocode}
 \NewDocumentCommand \Template {m}
 {
-  \prop_get:NnNTF \g_@@_answers_prop {Template} \l_@@_tmpa_tl
+  \bool_gset_true:N \g_@@_regenerate_next_bool
+  \@@_check_answer:nnn {tl} {Template}
   {
-    \tl_gset_eq:NN \g_@@_output_tl \l_@@_tmpa_tl
-  }
-  {
-
-    \prop_gput:NnV \g_@@_answers_prop {Template} \g_@@_output_tl
+    %
   }
   \tl_use:N \g_@@_output_tl
   \@@_clear_outputs:
