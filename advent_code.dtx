@@ -107,7 +107,8 @@ and the derived files            advent.ins,
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
-\begin{document}
+  \begin{document}
+  \DeleteShortVerb \|
   \DocInput{\jobname.dtx}
 \end{document}
 %</driver>
@@ -133,6 +134,7 @@ and the derived files            advent.ins,
 %
 %
 % \changes{1.00}{2021/12/05}{Created DTX file}
+% \changes{2.00}{2022/01/03}{Solutions up to Day 22, missing a few}
 %
 % \DoNotIndex{\newcommand,\newenvironment}
 %
@@ -153,10 +155,11 @@ and the derived files            advent.ins,
 % 
 % \section{Introduction}
 %
+% This my attempt to solve the Advent of Code 2021 problems in \LaTeX3.
 % 
-% 
+% \section{Solutions}
 %
-% \section{Day 01}
+% \subsection{Day 01}
 %
 % \begin{function}{\CountIncreases}
 % For this, we take advantage of a useful thing with the rolling averages.
@@ -174,7 +177,7 @@ and the derived files            advent.ins,
 % increases in the \(3\)--item rolling averages of the depths.
 % \end{enumerate}
 %
-% \section{Day 02}
+% \subsection{Day 02}
 %
 % \begin{function}{\NavigateSub}
 % For the second task, we can reuse the code since the \Verb!Depth! of the first part now becomes the \Verb!Aim! of the second.
@@ -188,7 +191,7 @@ and the derived files            advent.ins,
 % \NavigateSub{Day02}
 % \end{enumerate}
 %
-% \section{Day 03}
+% \subsection{Day 03}
 %
 % \begin{function}{\CalculateRatesGE,\CalculateRatesOCO}
 % I didn't originally see how to directly use my code from the first part in solving the second.
@@ -207,7 +210,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 04}
+% \subsection{Day 04}
 %
 % \begin{function}{\BingoCards}
 % The idea of the code here is to convert a bingo card into a \texttt{prop} with keys the numbers on the card and values their positions.
@@ -223,7 +226,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 05}
+% \subsection{Day 05}
 %
 % \begin{function}{\GridVents}
 %
@@ -241,7 +244,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 06}
+% \subsection{Day 06}
 %
 % \begin{function}{\LanternFish}
 %
@@ -260,7 +263,7 @@ and the derived files            advent.ins,
 % after \(256\) days.
 % \end{enumerate}
 %
-% \section{Day 07}
+% \subsection{Day 07}
 %
 % \begin{function}{\CrabLine}
 % I cheated slightly here.
@@ -280,7 +283,7 @@ and the derived files            advent.ins,
 % \CrabLine{Day07}
 % \end{enumerate}
 %
-% \section{Day 08}
+% \subsection{Day 08}
 %
 % \begin{function}{\DigitScramble,\DigitUnScramble}
 %
@@ -303,7 +306,7 @@ and the derived files            advent.ins,
 %
 %
 %
-% \section{Day 09}
+% \subsection{Day 09}
 %
 % \begin{function}{\SmokeBasin,\BasinSize}
 % To make the code a bit simpler, I effectively put a border of \(10\)s around the edge of the grid of numbers.
@@ -333,7 +336,7 @@ and the derived files            advent.ins,
 % \item The product of the sizes of the largest basins is \BasinSize{Day09}.
 % \end{enumerate}
 %
-% \section{Day 10}
+% \subsection{Day 10}
 %
 % \begin{function}{\SyntaxScore}
 % Given that \Verb!{! and \Verb!}! are special characters in \TeX, I thought this would be a good example to get to grips with the \texttt{str} data type.
@@ -351,7 +354,7 @@ and the derived files            advent.ins,
 %
 %
 %
-% \section{Day 11}
+% \subsection{Day 11}
 %
 % \begin{function}{\OctopusFlash}
 % \begin{enumerate}
@@ -362,7 +365,7 @@ and the derived files            advent.ins,
 % \end{function}
 %
 %
-% \section{Day 12}
+% \subsection{Day 12}
 %
 %
 % \begin{function}{\CavePath}
@@ -388,7 +391,7 @@ and the derived files            advent.ins,
 %
 %
 %
-% \section{Day 13}
+% \subsection{Day 13}
 %
 % \begin{function}{\FoldPaper}
 % The fold lines are ``in half'' at each step, so it's really just a matter of figuring out the final position of each dot.
@@ -410,7 +413,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 14}
+% \subsection{Day 14}
 %
 % \begin{function}{\Polymer,\LongPolymer}
 % For the first task, I did this the naive way: starting with the original list and then applying the replacements \(10\) times over, then sorting the resulting list, splitting it into sections of the same letter, sorting them by length, and finding the difference between the lengths of the longest and shortest.
@@ -438,7 +441,7 @@ and the derived files            advent.ins,
 %
 %
 %
-% \section{Day 15}
+% \subsection{Day 15}
 %
 % \begin{function}{\ChitonRisk}
 % My algorithm for this depends on the fact that if a path of lowest risk from cell \(A\) to cell \(B\) passes through cell \(C\), then its subpaths from \(A\) to \(C\) and from \(C\) to \(B\) must also be of lowest risk for their start and end points.
@@ -460,12 +463,12 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 16}
+% \subsection{Day 16}
 %
 % Skipping for the moment \dots\ looks a little complicated to figure out what's actually going on.
 %
 %
-% \section{Day 17}
+% \subsection{Day 17}
 %
 % \begin{function}{\TrickShot}
 % The first part of this is simple enough to solve with just Mathematics.
@@ -527,7 +530,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 20}
+% \subsection{Day 20}
 %
 % \begin{function}{\ImageEnhance}
 % The main irritation here was linearising the grid and dealing with the edges.
@@ -542,7 +545,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 21}
+% \subsection{Day 21}
 %
 % \begin{function}{\DiracDiceI, \DiracDiceII}
 % For the simpler version, there are quite a few mathematical observations that simplify the process.
@@ -598,7 +601,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 %
-% \section{Day 22}
+% \subsection{Day 22}
 %
 % \begin{function}{\Reboot}
 % My initial attempt to solve this was way too slow, so I'm taking a more mathematical approach to see if that improves things.
@@ -608,13 +611,13 @@ and the derived files            advent.ins,
 % The size of this is given by the ``inclusion--exclusion'' formula:
 %
 % \[
-% | C_1 \cup C_2 | = |C_1| + |C_2| - |C_1 \cap C_2|
+% \left| C_1 \cup C_2 \right| = \left|C_1\right| + \left|C_2\right| - \left|C_1 \cap C_2\right|
 % \]
 %
 % This formula generalises to multiple unions:
 %
 % \[
-% | \bigcup_i C_i | = \sum_i |C_i| - \sum_{i < j} |C_i \cap C_j| + \sum_{i < j < k} |C_i \cap C_j \cap C_k| - \dots
+% \left| \bigcup_i C_i \right| = \sum_i \left|C_i\right| - \sum_{i < j} \left|C_i \cap C_j\right| + \sum_{i < j < k} \left|C_i \cap C_j \cap C_k\right| - \dots
 % \]
 %
 % The advantage of using this formula is that the intersections are again cuboids.
@@ -636,7 +639,7 @@ and the derived files            advent.ins,
 % \end{enumerate}
 %
 % \StopEventually{}
-% \end{document}
+%
 % \section{Implementation}
 %
 % \iffalse
@@ -780,6 +783,8 @@ solving the Advent of Code 2021}
 
 %    \end{macrocode}
 %
+% \subsection{Integer Overflow}
+% 
 % On occasion we run into arithmetic overflow.
 % To make life a little easier, we overflow at a power of \(10\).
 %
@@ -959,6 +964,7 @@ solving the Advent of Code 2021}
 }
 %    \end{macrocode}
 %
+% \subsection{Caching}
 %
 % We save our answers in a prop that is written to an output file at the end of the document.
 %    \begin{macrocode}
@@ -1041,6 +1047,8 @@ solving the Advent of Code 2021}
 }
 \cs_generate_variant:Nn \@@_check_answer:nnn {nVn,nxn}
 %    \end{macrocode}
+%
+% \subsection{Solutions for Days}
 %
 % \begin{macro}{
 % \CountIncreases
@@ -5187,9 +5195,9 @@ solving the Advent of Code 2021}
   \intarray_gzero:N \g_@@_reboot_zmin_intarray
   \intarray_gzero:N \g_@@_reboot_zmax_intarray
   \intarray_gzero:N \g_@@_reboot_sign_intarray
-%    \begin{macrocode}
-% See if we have anything in the cache
 %    \end{macrocode}
+% See if we have anything in the cache
+%    \begin{macrocode}
   \int_zero:N \l_@@_tmpd_int
   \int_zero:N \l_@@_tmpa_int
   \ior_open:NnT \l_@@_tmpa_ior {#2-Cuboids-#1.txt}
@@ -5561,10 +5569,12 @@ solving the Advent of Code 2021}
 %</advent>
 % \fi
 %
-%
+% 
 % \iffalse
 %<*template>
 % \fi
+%
+% \subsection{Template for New Solutions}
 %
 % \begin{macro}{
 % \advent_template
