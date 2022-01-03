@@ -8,3 +8,5 @@
 *.sty
 *~
 *.out
+*.txt
+*.py
